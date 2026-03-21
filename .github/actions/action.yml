@@ -322,6 +322,7 @@ runs:
         COMMON_KERNEL_DIR="$KERNEL_PLATFORM_DIR/common"
         MSM_KERNEL_DIR="$KERNEL_PLATFORM_DIR/msm-kernel"
         AK3_DIR="$GITHUB_WORKSPACE/AnyKernel3"
+        SUKISU_KERNEL_PATCH="$GITHUB_WORKSPACE/patch_linux"
         KERNEL_PATCHES_DIR="$GITHUB_WORKSPACE/kernel_patches"
         SUSFS_DIR="$GITHUB_WORKSPACE/susfs4ksu"
         KSU_DIR="$KERNEL_PLATFORM_DIR/KernelSU"
@@ -335,6 +336,7 @@ runs:
         echo "COMMON_KERNEL_FOLDER=$COMMON_KERNEL_DIR" >> "$GITHUB_ENV"
         echo "MSM_KERNEL_FOLDER=$MSM_KERNEL_DIR" >> "$GITHUB_ENV"
         echo "AK3_FOLDER=$AK3_DIR" >> "$GITHUB_ENV"
+        echo "SUKISU_KERNEL_PATCH=$SUKISU_KERNEL_PATCH" >> "$GITHUB_ENV"
         echo "KERNEL_PATCHES_FOLDER=$KERNEL_PATCHES_DIR" >> "$GITHUB_ENV"
         echo "SUSFS_FOLDER=$SUSFS_DIR" >> "$GITHUB_ENV"
         echo "KSU_FOLDER=$KSU_DIR" >> "$GITHUB_ENV"
@@ -661,6 +663,14 @@ runs:
         
         retry_clone "https://github.com/TheWildJames/AnyKernel3.git" "$ANYKERNEL_BRANCH"
         retry_clone "https://github.com/TheWildJames/kernel_patches.git"
+
+        echo "Downloading SukiSU_KernelPatch..."
+        curl -s https://api.github.com/repos/SukiSU-Ultra/SukiSU_KernelPatch_patch/releases/latest \
+          | grep "browser_download_url" \
+          | grep "patch_linux" \
+          | cut -d '"' -f 4 \
+          | wget -qi -
+        chmod +x patch_linux
         
         if [ "${{ env.OP_SUSFS }}" = true ]; then
           retry_clone "https://gitlab.com/simonpunk/susfs4ksu.git" "master" 0
@@ -791,7 +801,7 @@ runs:
             sed -i '/#include <linux\/cpufreq_times.h>/a #include <linux\/dma-buf.h>' ./fs/proc/base.c
           fi
         fi
-        
+
         patch -p1 < "$SUSFS_FOLDER/kernel_patches/50_add_susfs_in_${{ env.SUSFS_KERNEL_BRANCH }}.patch"
         
         # Revert Fake kernel patch
@@ -1316,7 +1326,8 @@ runs:
         echo "BUILD_END=$BUILD_END" >> "$GITHUB_ENV"
         echo "BUILD_TIME=$BUILD_TIME" >> "$GITHUB_ENV"
         
-        IMG="$OUT/arch/arm64/boot/Image"
+        BOOT_DIR="$OUT/arch/arm64/boot"
+        IMG="$BOOT_DIR/Image"
         if [ ! -f "$IMG" ]; then
           echo "::error::Kernel Image missing"
           echo "::group::Last 100 lines of build log"
@@ -1324,6 +1335,12 @@ runs:
           echo "::endgroup::"
           exit 1
         fi
+
+        echo "Patching kernel to add KPM support..."
+        cd "$BOOT_DIR"
+        $SUKISU_KERNEL_PATCH
+        rm ./Image
+        mv ./oImage ./Image
         
         IMG_SIZE=$(stat -c%s "$IMG")
         
@@ -1332,6 +1349,10 @@ runs:
         echo "============================================"
         echo "Duration: $((BUILD_TIME / 60))m $((BUILD_TIME % 60))s"
         echo "Image: $(numfmt --to=iec-i --suffix=B "$IMG_SIZE")"
+
+        echo "Patching Image to add KPM support..."
+
+
         
         if [ "${{ inputs.clean }}" != "true" ]; then
           echo ""
