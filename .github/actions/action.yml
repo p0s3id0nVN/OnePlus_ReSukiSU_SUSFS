@@ -1341,6 +1341,7 @@ runs:
         $SUKISU_KERNEL_PATCH
         rm ./Image
         mv ./oImage ./Image
+        cd ../../../..
         
         IMG_SIZE=$(stat -c%s "$IMG")
         
