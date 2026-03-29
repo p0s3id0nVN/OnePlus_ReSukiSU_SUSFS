@@ -126,7 +126,7 @@ If you encounter any issues or need help, feel free to:
 <div align="center">
   
 [![Telegram](https://img.shields.io/badge/Telegram-huangdihd-blue?logo=telegram)](https://t.me/huangdihd)
-[![Telegram Group](https://img.shields.io/badge/Telegram-huangdihd-WildKernels-blue?logo=telegram)](https://t.me/huangdihd_wildkernel)
+[![Telegram Group](https://img.shields.io/badge/Telegram-huangdihd_wildkernel-blue?logo=telegram)](https://t.me/huangdihd_wildkernel)
 
 </div>
 
