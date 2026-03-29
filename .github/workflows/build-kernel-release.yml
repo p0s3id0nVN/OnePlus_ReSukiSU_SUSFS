@@ -830,3 +830,59 @@ jobs:
               echo "- \`$name\` (${size_mb} MB)" >> $GITHUB_STEP_SUMMARY
             fi
           done
+
+      - name: 📱 Send Detailed Telegram Notification
+        if: success()
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: |
+          set -euo pipefail
+          echo "::group::Telegram Notification"
+          
+          if [ -z "$TG_BOT_TOKEN" ] || [ -z "$TG_CHAT_ID" ]; then
+            echo "⚠️ Telegram secrets not configured. Skipping notification."
+            exit 0
+          fi
+          
+          # Initialize the rich text message
+          MSG_TEXT="🚀 <b>OnePlus Kernel Build Successful!</b>%0A"
+          MSG_TEXT+="━━━━━━━━━━━━━━━━━━%0A"
+          MSG_TEXT+="<b>🏷️ Release Tag:</b> <code>${{ env.NEW_TAG }}</code>%0A"
+          MSG_TEXT+="<b>🔐 Root Solution:</b> ${{ inputs.ksu_type }}%0A"
+          MSG_TEXT+="<b>🛡️ SUSFS Version:</b> ${{ env.SUSFS_BASE_VERSION }}%0A"
+          MSG_TEXT+="<b>⚙️ Optimization:</b> ${{ inputs.optimize_level }} | Clean: ${{ inputs.clean_build }}%0A"
+          MSG_TEXT+="━━━━━━━━━━━━━━━━━━%0A"
+          MSG_TEXT+="<b>📦 Device Builds & Downloads:</b>%0A%0A"
+          
+          # Loop through artifacts to generate clean device-specific links
+          for zip in ./downloaded-artifacts/*.zip; do
+            if [ -f "$zip" ]; then
+              filename=$(basename "$zip")
+              
+              # Extract Model and OS from filename (e.g., AK3_OP12_OOS15_...)
+              rest="${filename#AK3_}"
+              IFS='_' read -ra parts <<< "$rest"
+              model="${parts[0]}"
+              os_version="${parts[1]}"
+              
+              dl_link="https://github.com/${{ github.repository }}/releases/download/${{ env.NEW_TAG }}/${filename}"
+              
+              # Format it nicely: Device Name + Direct Download Link
+              MSG_TEXT+="📱 <b>${model} (${os_version})</b>%0A"
+              MSG_TEXT+="↳ <a href='${dl_link}'>📥 Download ZIP</a>%0A%0A"
+            fi
+          done
+          
+          MSG_TEXT+="━━━━━━━━━━━━━━━━━━%0A"
+          MSG_TEXT+="<a href='${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ env.NEW_TAG }}'>📝 View Full Release Notes</a>"
+          
+          # Send POST request to Telegram API
+          curl -s -X POST "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
+            -d chat_id="${TG_CHAT_ID}" \
+            -d parse_mode="HTML" \
+            -d disable_web_page_preview="true" \
+            -d text="${MSG_TEXT}" > /dev/null
+            
+          echo "✅ Detailed Telegram notification sent successfully!"
+          echo "::endgroup::"
