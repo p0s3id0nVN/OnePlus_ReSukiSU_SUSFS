@@ -926,6 +926,7 @@ jobs:
           - **KSU SUSFS Module** (Required for SUSFS features)  
             → [GitHub Release](https://github.com/sidex15/ksu_module_susfs/releases)
           EOF
+          fi
           cat << EOF >> release_notes.md
           ### Recomended Flasher
           - **Kernel Flasher** (Required for flashing AnyKernel3 zips and backups and OTA)  
