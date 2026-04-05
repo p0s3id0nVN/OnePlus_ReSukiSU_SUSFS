@@ -1716,6 +1716,7 @@ runs:
         set -euo pipefail
         echo "::group::Create kernel ZIP package"
         
+        # 1. Xác định đường dẫn Image chuẩn
         IMAGE_PATH="$COMMON_KERNEL_FOLDER/out/arch/arm64/boot/Image"
         
         if [ -f "$KERNEL_PLATFORM_FOLDER/out/$OP_ANDROID_VERSION-$OP_KERNEL_VERSION/dist/Image" ]; then
@@ -1729,31 +1730,43 @@ runs:
           exit 1
         fi
         
+        # 2. Chuẩn bị thư mục AK3
         cp "$IMAGE_PATH" "$AK3_FOLDER/Image"
-        mv "${ARTIFACTS_FOLDER}/${OP_MODEL}_${OP_OS_VERSION}.txt" "$AK3_FOLDER/"
+        # Dùng -f để tránh lỗi nếu file txt không tồn tại
+        mv -f "${ARTIFACTS_FOLDER}/${OP_MODEL}_${OP_OS_VERSION}.txt" "$AK3_FOLDER/" || echo "Warning: Info txt not found"
+        
+        # 3. Mapping tên Model (OP12 -> X7U, OP11 -> X6P)
+        case "${OP_MODEL}" in
+          "OP12") DISPLAY_MODEL="X7U" ;;
+          "OP11") DISPLAY_MODEL="X6P" ;;
+          *)      DISPLAY_MODEL="${OP_MODEL}" ;;
+        esac
+        
+        # 4. Xây dựng tên file ZIP
+        # Xử lý các biến version để đảm bảo không bị trống
+        KSU_STR="${KSUVER:-unknown}"
+        SUS_STR="${SUSVER:-unknown}"
+        
+        if [ "${{ env.OP_SUSFS }}" = "true" ]; then
+          ZIP_NAME="AK3_${DISPLAY_MODEL}_${OP_OS_VERSION}_${KERNEL_FULL_VER}_${{ inputs.ksu_type }}_${KSU_STR}_SuSFS_${SUS_STR}.zip"
+        else
+          ZIP_NAME="AK3_${DISPLAY_MODEL}_${OP_OS_VERSION}_${KERNEL_FULL_VER}_${{ inputs.ksu_type }}_${KSU_STR}.zip"
+        fi
+        
+        # 5. Nén file (Nhảy vào thư mục AK3 để nén nội dung bên trong)
+        mkdir -p "$ARTIFACTS_FOLDER"
         cd "$AK3_FOLDER"
         
-        if [ "${{ env.OP_SUSFS }}" = true ]; then
-          ZIP_NAME="AK3_${OP_MODEL}_${OP_OS_VERSION}_${KERNEL_FULL_VER}_${{ inputs.ksu_type }}_${KSUVER:-unknown}_SuSFS_${SUSVER:-unknown}.zip"
-        else
-          ZIP_NAME="AK3_${OP_MODEL}_${OP_OS_VERSION}_${KERNEL_FULL_VER}_${{ inputs.ksu_type }}_${KSUVER:-unknown}.zip"
-        fi
-        mkdir -p "$ARTIFACTS_FOLDER"
-        
         echo "Creating flashable ZIP: $ZIP_NAME"
+        # Loại bỏ các file rác và chính nó nếu lỡ nằm trong folder
+        zip -r9 "$ZIP_NAME" ./* -x "*.git*" -x "$ZIP_NAME" -x "README.md"
         
-        if ! zip -r9 "$ZIP_NAME" ./* \
-             -x "*.git*" \
-             -x "$ZIP_NAME" \
-             -x "README.md" 2>&1 | tee /tmp/zip.log; then
-          echo "::error::Failed to create ZIP package"
-          exit 1
-        fi
-        
+        # 6. Di chuyển và dọn dẹp
         mv "$ZIP_NAME" "$ARTIFACTS_FOLDER/"
-        
+        # Chỉ giữ lại file zip vừa tạo trong folder artifacts để tránh nhầm lẫn
         find "$ARTIFACTS_FOLDER" -maxdepth 1 -type f ! -name "$ZIP_NAME" -delete
         
+        # 7. Xuất thông số
         ZIP_SIZE=$(stat -c%s "$ARTIFACTS_FOLDER/$ZIP_NAME")
         ZIP_SHA256=$(sha256sum "$ARTIFACTS_FOLDER/$ZIP_NAME" | awk '{print $1}')
         
