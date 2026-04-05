@@ -18,17 +18,17 @@ on:
         type: choice
         options:
           # - OOS14+15+16
-          # - OOS15+16
+          - OOS15+16
           # - OOS14+15
           - OOS16
-          # - OOS15
+          - OOS15
           # - OOS14
           # - android16-6.12
           # - android15-6.6
-          # - android14-6.1
-          # - android13-5.15
+          - android14-6.1
+          - android13-5.15
           # - android12-5.10
-        default: OOS16
+        default: OOS15+16
       ksu_type:
         description: 'Select KSU Type'
         required: true
@@ -59,10 +59,10 @@ on:
       #   description: 'Enter SusFS Branch or commit hash for android12-5.10'
       #   type: string
       #   default: ''      
-      # android13-5_15_susfs_branch_or_commit:
-      #   description: 'Enter SusFS Branch or commit hash for android13-5.15'
-      #   type: string
-      #   default: ''      
+      android13-5_15_susfs_branch_or_commit:
+        description: 'Enter SusFS Branch or commit hash for android13-5.15'
+        type: string
+        default: ''      
       # android15-6_6_susfs_branch_or_commit:
       #   description: 'Enter SusFS Branch or commit hash for android15-6.6'
       #   type: string
@@ -1095,7 +1095,7 @@ jobs:
             echo "Sending POST request to Telegram API (Chat ID: $ID)..."
             
             # Send payload as application/json
-            RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
+            RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://api.telegram.org/bot${TG_BOT_TK}/sendMessage" \
               -H "Content-Type: application/json" \
               -d "$PAYLOAD")
             
