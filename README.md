@@ -38,9 +38,9 @@ Flashing this kernel will not void your warranty, but there is always a risk of 
 | Kernel | Repository | Status |
 |--------|------------|--------|
 | 🏗️ **GKI** | [GKI_KernelSU_SUSFS](https://github.com/WildKernels/GKI_KernelSU_SUSFS) | ✅ Active |
-| 👑 **Sultan** | [Sultan_KernelSU_SUSFS](https://github.com/WildKernels/Sultan_KernelSU_SUSFS) | ✅ Active |
-| 📱 **OnePlus/Oppo/Realme** | [OnePlus_KernelSU_SUSFS](https://github.com/WildKernels/OnePlus_KernelSU_SUSFS) | ✅ Active |
-| 📱 **Samsung** | [Samsung_KernelSU_SUSFS](https://github.com/WildKernels/Samsung_KernelSU_SUSFS) | ✅ Active |
+| 👑 **ResukiSU** | [Resukisu_KernelSU_SUSFS](https://github.com/p0s3id0nVN/OnePlus_ReSukiSU_SUSFS) | ✅ Active |
+| 📱 **WildKernel** | [OnePlus_KernelSU_SUSFS](https://github.com/WildKernels/OnePlus_KernelSU_SUSFS) | ✅ Active |
+| 📱 **ResukiSU-Fork** | [Resukisu_KernelSU_SUSFS](https://github.com/cctv18/oppo_oplus_realme_sm8850) | ✅ Active |
 </div>
 
 ---
