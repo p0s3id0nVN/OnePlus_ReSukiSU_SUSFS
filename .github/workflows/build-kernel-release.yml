@@ -1050,7 +1050,7 @@ jobs:
             OS_VERS="None"
             KSU_VERS="Unknown"
           else
-            # Extract models (2nd part), OS versions (3rd part), and KSU versions (6th part) from AK3_OP12_OOS15_android15-6.6_ReSukiSU_30700...zip
+            # Extract models, OS, and KSU versions
             MODELS=$(printf "%s\n" "${ZIPS[@]}" | awk -F'/' '{print $NF}' | awk -F'_' '{print $2}' | sort -u | paste -sd ", " -)
             OS_VERS=$(printf "%s\n" "${ZIPS[@]}" | awk -F'/' '{print $NF}' | awk -F'_' '{print $3}' | sort -u | paste -sd ", " -)
             KSU_VERS=$(printf "%s\n" "${ZIPS[@]}" | awk -F'/' '{print $NF}' | awk -F'_' '{print $6}' | sort -u | paste -sd ", " -)
@@ -1058,8 +1058,8 @@ jobs:
           
           echo "Found $ZIP_COUNT packages for models: $MODELS, KSU Ver: $KSU_VERS"
           
-          # Use pure Bash multi-line string. True newlines are preserved!
-          MSG_TEXT="🚀 <b>OnePlus Kernel Build Successful!</b>
+          # Cải thiện hiển thị MSG_TEXT
+          MSG_TEXT="🚀 <b>Kernel Build Successful!</b>
           ━━━━━━━━━━━━━━━━━━
           <b>🏷️ Release Tag:</b> <code>${{ env.NEW_TAG }}</code>
           <b>🔐 Root Solution:</b> ${{ inputs.ksu_type }} (v${KSU_VERS})
@@ -1081,7 +1081,6 @@ jobs:
             if [ -z "$ID" ]; then continue; fi
             echo "Constructing secure JSON payload for Chat ID: $ID..."
             
-            # jq automatically escapes the true newlines and HTML characters into a safe JSON string
             PAYLOAD=$(jq -n \
               --arg chat_id "$ID" \
               --arg text "$MSG_TEXT" \
@@ -1094,8 +1093,9 @@ jobs:
             
             echo "Sending POST request to Telegram API (Chat ID: $ID)..."
             
-            # Send payload as application/json
-            RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" 
+            # ĐÃ SỬA: Thêm dấu \ để nối dòng curl và thêm "" quanh URL để an toàn
+            RESPONSE=$(curl -s -w "\n%{http_code}" \
+              -X POST "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
               -H "Content-Type: application/json" \
               -d "$PAYLOAD")
             
@@ -1103,11 +1103,10 @@ jobs:
             RESPONSE_BODY=$(echo "$RESPONSE" | head -n -1)
 
             if [ "$HTTP_CODE" -eq 200 ]; then
-              echo "✅ Detailed Telegram notification sent successfully to $ID! response: $RESPONSE_BODY"
+              echo "✅ Detailed Telegram notification sent successfully to $ID!"
             else
-              echo "❌ Failed to send Telegram notification to $ID! status code: $HTTP_CODE, response: $RESPONSE_BODY"
-              # We don't necessarily want to exit if one ID fails, but we should log it.
-              # However, if it's the only ID, maybe we should? Let's keep it robust.
+              echo "❌ Failed to send Telegram notification to $ID! status code: $HTTP_CODE"
+              echo "Response: $RESPONSE_BODY"
             fi
           done
           echo "::endgroup::"
