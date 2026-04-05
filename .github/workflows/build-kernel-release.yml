@@ -1094,14 +1094,14 @@ jobs:
             
             echo "Sending POST request to Telegram API (Chat ID: $ID)..."
             
-            # Send payload as application/json
-            RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" 
+            # CỐ ĐỊNH LỖI TẠI ĐÂY: Thêm dấu \ để nối dòng lệnh curl
+            RESPONSE=$(curl -s -w "\n%{http_code}" \
+              -X POST "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
               -H "Content-Type: application/json" \
               -d "$PAYLOAD")
-            
+              
             HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
             RESPONSE_BODY=$(echo "$RESPONSE" | head -n -1)
-
             if [ "$HTTP_CODE" -eq 200 ]; then
               echo "✅ Detailed Telegram notification sent successfully to $ID! response: $RESPONSE_BODY"
             else
