@@ -17,18 +17,18 @@ on:
         required: true
         type: choice
         options:
-          - OOS14+15+16
-          - OOS15+16
-          - OOS14+15
+          # - OOS14+15+16
+          # - OOS15+16
+          # - OOS14+15
           - OOS16
-          - OOS15
-          - OOS14
-          - android16-6.12
-          - android15-6.6
-          - android14-6.1
-          - android13-5.15
-          - android12-5.10
-        default: OOS14+15+16
+          # - OOS15
+          # - OOS14
+          # - android16-6.12
+          # - android15-6.6
+          # - android14-6.1
+          # - android13-5.15
+          # - android12-5.10
+        default: OOS16
       ksu_type:
         description: 'Select KSU Type'
         required: true
@@ -51,26 +51,26 @@ on:
         description: 'Clean build (no ccache)'
         type: boolean
         default: false
-      android12-5_10_susfs_branch_or_commit:
-        description: 'Enter SusFS Branch or commit hash for android12-5.10'
-        type: string
-        default: ''      
-      android13-5_15_susfs_branch_or_commit:
-        description: 'Enter SusFS Branch or commit hash for android13-5.15'
-        type: string
-        default: ''      
       android14-6_1_susfs_branch_or_commit:
         description: 'Enter SusFS Branch or commit hash for android14-6.1'
         type: string
         default: ''
-      android15-6_6_susfs_branch_or_commit:
-        description: 'Enter SusFS Branch or commit hash for android15-6.6'
-        type: string
-        default: ''
-      android16-6_12_susfs_branch_or_commit:
-        description: 'Enter SusFS Branch or commit hash for android16-6.12'
-        type: string
-        default: ''
+      # android12-5_10_susfs_branch_or_commit:
+      #   description: 'Enter SusFS Branch or commit hash for android12-5.10'
+      #   type: string
+      #   default: ''      
+      # android13-5_15_susfs_branch_or_commit:
+      #   description: 'Enter SusFS Branch or commit hash for android13-5.15'
+      #   type: string
+      #   default: ''      
+      # android15-6_6_susfs_branch_or_commit:
+      #   description: 'Enter SusFS Branch or commit hash for android15-6.6'
+      #   type: string
+      #   default: ''
+      # android16-6_12_susfs_branch_or_commit:
+      #   description: 'Enter SusFS Branch or commit hash for android16-6.12'
+      #   type: string
+      #   default: ''
 
 jobs:
   set-op-model:
@@ -79,11 +79,11 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
       device_count: ${{ steps.set-matrix.outputs.count }}
       active_gki_keys: ${{ steps.set-matrix.outputs.active_gki_keys }}
-      susfs_hash_android12_5_10: ${{ steps.set-matrix.outputs.susfs_hash_android12_5_10 }}
-      susfs_hash_android13_5_15: ${{ steps.set-matrix.outputs.susfs_hash_android13_5_15 }}
+      # susfs_hash_android12_5_10: ${{ steps.set-matrix.outputs.susfs_hash_android12_5_10 }}
+      # susfs_hash_android13_5_15: ${{ steps.set-matrix.outputs.susfs_hash_android13_5_15 }}
       susfs_hash_android14_6_1:  ${{ steps.set-matrix.outputs.susfs_hash_android14_6_1 }}
-      susfs_hash_android15_6_6:  ${{ steps.set-matrix.outputs.susfs_hash_android15_6_6 }}
-      susfs_hash_android16_6_12: ${{ steps.set-matrix.outputs.susfs_hash_android16_6_12 }}
+      # susfs_hash_android15_6_6:  ${{ steps.set-matrix.outputs.susfs_hash_android15_6_6 }}
+      # susfs_hash_android16_6_12: ${{ steps.set-matrix.outputs.susfs_hash_android16_6_12 }}
       ksu_resolved_hash:    ${{ steps.set-matrix.outputs.ksu_resolved_hash }}
 
     env:
@@ -1072,7 +1072,7 @@ jobs:
           
           ━━━━━━━━━━━━━━━━━━
           👉 <a href=\"${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ env.NEW_TAG }}\"><b>📥 GET YOUR KERNEL HERE</b></a>
-          📢 <a href=\"https://t.me/huangdihd_wildkernel\"><b>JOIN TELEGRAM CHANNEL</b></a>"
+          📢 <a href=\"https://t.me/PSD_KERNEL\"><b>JOIN TELEGRAM CHANNEL</b></a>"
           
           # Split TG_CHAT_ID by comma or space
           IFS=' ,' read -r -a CHAT_IDS <<< "$TG_CHAT_ID"
