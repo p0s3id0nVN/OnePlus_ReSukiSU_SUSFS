@@ -1025,13 +1025,13 @@ jobs:
       - name: 📱 Send Detailed Telegram Notification
         if: success()
         env:
-          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TK }}
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
         run: |
           set -euo pipefail
           echo "::group::Telegram Notification"
           
-          if [ -z "$TG_BOT_TK" ] || [ -z "$TG_CHAT_ID" ]; then
+          if [ -z "$TG_BOT_TOKEN" ] || [ -z "$TG_CHAT_ID" ]; then
             echo "⚠️ Telegram secrets not configured. Skipping notification."
             exit 0
           fi
