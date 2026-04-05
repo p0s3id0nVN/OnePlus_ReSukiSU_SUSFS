@@ -1022,7 +1022,7 @@ jobs:
             fi
           done
 
-      - name: 📱 Send Detailed Telegram Notification
+      - name: 📱 Gửi thông báo chi tiết đến Telegram
         if: success()
         env:
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
@@ -1032,13 +1032,13 @@ jobs:
           echo "::group::Telegram Notification"
           
           if [ -z "$TG_BOT_TOKEN" ] || [ -z "$TG_CHAT_ID" ]; then
-            echo "⚠️ Telegram secrets not configured. Skipping notification."
+            echo "⚠️ Chưa cấu hình khóa bí mật Telegram. Bỏ qua thông báo."
             exit 0
           fi
           
-          echo "Aggregating artifact statistics..."
+          echo "Tổng hợp số liệu thống kê file zip..."
           
-          # Safely read all zip files into an array
+          # Đọc an toàn tất cả các tệp zip vào một mảng
           shopt -s nullglob
           ZIPS=(./downloaded-artifacts/*.zip)
           shopt -u nullglob
@@ -1056,7 +1056,7 @@ jobs:
             KSU_VERS=$(printf "%s\n" "${ZIPS[@]}" | awk -F'/' '{print $NF}' | awk -F'_' '{print $6}' | sort -u | paste -sd ", " -)
           fi
           
-          echo "Found $ZIP_COUNT packages for models: $MODELS, KSU Ver: $KSU_VERS"
+          echo "Đã tìm thấy $ZIP_COUNT gói cho các mô hình: $MODELS, Phiên bản KSU: $KSU_VERS"
           
           # Use pure Bash multi-line string. True newlines are preserved!
           MSG_TEXT="🚀 <b>OnePlus Kernel Build Successful!</b>
@@ -1092,10 +1092,10 @@ jobs:
                 text: $text
               }')
             
-            echo "Sending POST request to Telegram API (Chat ID: $ID)..."
+            echo "Đang gửi yêu cầu POST đến API Telegram (ID trò chuyện: $ID)..."
             
             # Send payload as application/json
-            RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://api.telegram.org/bot${TG_BOT_TK}/sendMessage" \
+            RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
               -H "Content-Type: application/json" \
               -d "$PAYLOAD")
             
@@ -1103,11 +1103,11 @@ jobs:
             RESPONSE_BODY=$(echo "$RESPONSE" | head -n -1)
 
             if [ "$HTTP_CODE" -eq 200 ]; then
-              echo "✅ Detailed Telegram notification sent successfully to $ID! response: $RESPONSE_BODY"
+              echo "✅ Đã gửi thông báo Telegram chi tiết đến $ID thành công! Phản hồi: $RESPONSE_BODY"
             else
-              echo "❌ Failed to send Telegram notification to $ID! status code: $HTTP_CODE, response: $RESPONSE_BODY"
-              # We don't necessarily want to exit if one ID fails, but we should log it.
-              # However, if it's the only ID, maybe we should? Let's keep it robust.
+              echo "❌ Gửi thông báo Telegram đến $ID thất bại! Mã trạng thái: $HTTP_CODE, Phản hồi: $RESPONSE_BODY"
+              # Chúng ta không nhất thiết phải thoát (exit) nếu một ID bị lỗi, nhưng nên ghi lại nhật ký (log).
+              # Tuy nhiên, nếu đó là ID duy nhất, có lẽ chúng ta nên cân nhắc? Hãy giữ cho script chạy ổn định (robust).
             fi
           done
           echo "::endgroup::"
