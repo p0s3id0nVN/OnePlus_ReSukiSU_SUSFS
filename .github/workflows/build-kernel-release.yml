@@ -1095,7 +1095,7 @@ jobs:
             echo "Sending POST request to Telegram API (Chat ID: $ID)..."
             
             # Send payload as application/json
-            RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://api.telegram.org/bot${TG_BOT_TK}/sendMessage" \
+            RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" 
               -H "Content-Type: application/json" \
               -d "$PAYLOAD")
             
