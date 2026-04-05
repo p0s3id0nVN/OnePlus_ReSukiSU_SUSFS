@@ -11,7 +11,7 @@ on:
         description: 'Do you want to create a release?'
         required: true
         type: boolean
-        default: false
+        default: true
       op_model:
         description: 'Select the OnePlus kernels to build'
         required: true
@@ -1071,8 +1071,8 @@ jobs:
           <b>💻 Supported OS:</b> ${OS_VERS}
           
           ━━━━━━━━━━━━━━━━━━
-          👉 <a href=\"${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ env.NEW_TAG }}\"><b>📥 GET YOUR KERNEL HERE</b></a>
-          📢 <a href=\"https://t.me/PSD_KERNEL\"><b>JOIN TELEGRAM CHANNEL</b></a>"
+          👉 <a href=\"${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ env.NEW_TAG }}\"><b>📥 DOWNLOAD HERE</b></a>
+          📢 <a href=\"https://t.me/PSD-SUSFS\"><b>JOIN TELEGRAM CHANNEL</b></a>"
           
           # Split TG_CHAT_ID by comma or space
           IFS=' ,' read -r -a CHAT_IDS <<< "$TG_CHAT_ID"
@@ -1094,12 +1094,11 @@ jobs:
             
             echo "Sending POST request to Telegram API (Chat ID: $ID)..."
             
-            # CỐ ĐỊNH LỖI TẠI ĐÂY: Thêm dấu \ để nối dòng lệnh curl
-            RESPONSE=$(curl -s -w "\n%{http_code}" \
-              -X POST "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
+            # Send payload as application/json
+            RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
               -H "Content-Type: application/json" \
               -d "$PAYLOAD")
-              
+            
             HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
             RESPONSE_BODY=$(echo "$RESPONSE" | head -n -1)
             if [ "$HTTP_CODE" -eq 200 ]; then
