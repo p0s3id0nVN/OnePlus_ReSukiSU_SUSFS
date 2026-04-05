@@ -132,8 +132,10 @@ If you encounter any issues or need help, feel free to:
 
 <div align="center">
   
-[![Telegram](https://img.shields.io/badge/Telegram-huangdihd-blue?logo=telegram)](https://t.me/huangdihd)
-[![Telegram Group](https://img.shields.io/badge/Telegram-huangdihd_wildkernel-blue?logo=telegram)](https://t.me/huangdihd_wildkernel)
+[![Telegram](https://img.shields.io/badge/Telegram-p0s3id0n-blue%3Flogo%3Dtelegram?logo=telegram&logoColor=blue&color=blue
+)](https://t.me/p0s3id0n686)
+[![Telegram Group](https://img.shields.io/badge/Telegram-PSD_KERNEL-blue%3Flogo%3Dtelegram?logo=telegram&logoColor=blue&color=blue
+)](https://t.me/PSD_KERNEL)
 
 </div>
 
