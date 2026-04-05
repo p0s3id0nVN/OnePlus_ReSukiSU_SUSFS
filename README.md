@@ -145,7 +145,6 @@ If you encounter any issues or need help, feel free to:
 
 Any and all donations are appreciated!
 
-PayPal: [paypal.me/fatalcoder524](https://paypal.me/fatalcoder524)
+PayPal: [paypal.me/adsvn](https://paypal.me/adsvn)
 
 DM on Telegram for UPI donations!
-
