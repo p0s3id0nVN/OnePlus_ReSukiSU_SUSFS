@@ -1,4 +1,4 @@
-name: Fast Build and Release Oppo Find X7 Ultra Kernels
+name: ⚡ Fast Build Oppo Find X7 Ultra Kernels
 
 permissions:
   contents: write
@@ -8,12 +8,12 @@ on:
   workflow_dispatch:
     inputs:
       make_release:
-        description: 'Do you want to create a release?'
+        description: 'Bạn có muốn tạo bản release?'
         required: true
         type: boolean
         default: true
       op_model:
-        description: 'Select the OnePlus kernels to build'
+        description: 'Chọn phiên bản kernels để build'
         required: true
         type: choice
         options:
@@ -21,7 +21,7 @@ on:
           - android14-6.1
         default: COS16
       ksu_type:
-        description: 'Select KSU Type'
+        description: 'Chọn kiểu KSU '
         required: true
         type: choice
         options:
@@ -29,7 +29,7 @@ on:
           - KSU
         default: ReSukiSU
       ksu_branch_or_hash:
-        description: 'KSU branch or commit hash'
+        description: 'Nhập KSU branch hoặc commit hash'
         type: string
         default: 'main'
       optimize_level:
@@ -51,7 +51,7 @@ on:
       #   type: string
       #   default: ''      
       android14-6_1_susfs_branch_or_commit:
-        description: 'Enter SusFS Branch or commit hash for android14-6.1'
+        description: 'Nhập SusFS Branch or commit hash cho android14-6.1'
         type: string
         default: ''
       # android15-6_6_susfs_branch_or_commit:
@@ -727,11 +727,11 @@ jobs:
           
           # Hash map for GKI version
           declare -A susfs_map=(
-            ["android12-5.10"]="${{ needs.set-op-model.outputs.susfs_hash_android12_5_10 }}"
-            ["android13-5.15"]="${{ needs.set-op-model.outputs.susfs_hash_android13_5_15 }}"
+            # ["android12-5.10"]="${{ needs.set-op-model.outputs.susfs_hash_android12_5_10 }}"
+            # ["android13-5.15"]="${{ needs.set-op-model.outputs.susfs_hash_android13_5_15 }}"
             ["android14-6.1"]="${{ needs.set-op-model.outputs.susfs_hash_android14_6_1 }}"
-            ["android15-6.6"]="${{ needs.set-op-model.outputs.susfs_hash_android15_6_6 }}"
-            ["android16-6.12"]="${{ needs.set-op-model.outputs.susfs_hash_android16_6_12 }}"
+            # ["android15-6.6"]="${{ needs.set-op-model.outputs.susfs_hash_android15_6_6 }}"
+            # ["android16-6.12"]="${{ needs.set-op-model.outputs.susfs_hash_android16_6_12 }}"
           )
           
           # List of GKI versions present in this run
@@ -739,9 +739,9 @@ jobs:
             <<< "${{ needs.set-op-model.outputs.active_gki_keys }}"
           
           cat << EOF > release_notes.md
-          # 🎯 OnePlus Kernels with $KSU_TYPE & SUSFS $SUSFS_BASE_VERSION
+          # 🎯 Oppo Find X7 Ultra Kernels with $KSU_TYPE & SUSFS $SUSFS_BASE_VERSION
           
-          > **Build Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')  
+          > **Build Date:** $(date -u '+%d-%m-%Y %H:%M:%S UTC')  
           > **Build ID:** \`${{ github.run_id }}\`  
           > **Workflow:** [\`${{ github.workflow }}\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
           
@@ -970,7 +970,7 @@ jobs:
           echo "--- Final Release Notes ---"
           cat release_notes.md
 
-      - name: 🚀 Create GitHub Release
+      - name: 🚀 Tạo GitHub Release
         run: |
           gh release create "${{ env.NEW_TAG }}" \
             --repo "${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}" \
@@ -986,7 +986,7 @@ jobs:
             fi
           done
 
-      - name: 📊 Release summary
+      - name: 📊 Tóm tắt bản Release
         if: success()
         run: |
           cat >> $GITHUB_STEP_SUMMARY << EOF
@@ -1010,7 +1010,7 @@ jobs:
             fi
           done
 
-      - name: 📱 Send Detailed Telegram Notification
+      - name: 📱 Gửi thông báo đến Telegram
         if: success()
         env:
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
@@ -1020,11 +1020,11 @@ jobs:
           echo "::group::Telegram Notification"
           
           if [ -z "$TG_BOT_TOKEN" ] || [ -z "$TG_CHAT_ID" ]; then
-            echo "⚠️ Telegram secrets not configured. Skipping notification."
+            echo "⚠️ Telegram secrets chưa được cấu hình. Bỏ qua thông báo."
             exit 0
           fi
           
-          echo "Aggregating artifact statistics..."
+          echo "Tổng hợp thống kê artifact..."
           
           # Safely read all zip files into an array
           shopt -s nullglob
@@ -1044,10 +1044,10 @@ jobs:
             KSU_VERS=$(printf "%s\n" "${ZIPS[@]}" | awk -F'/' '{print $NF}' | awk -F'_' '{print $6}' | sort -u | paste -sd ", " -)
           fi
           
-          echo "Found $ZIP_COUNT packages for models: $MODELS, KSU Ver: $KSU_VERS"
+          echo "Đã tìm thấy $ZIP_COUNT gói cho các mô hình: $MODELS, Phiên bản KSU: $KSU_VERS"
           
           # Use pure Bash multi-line string. True newlines are preserved!
-          MSG_TEXT="🚀 <b>OnePlus Kernel Build Successful!</b>
+          MSG_TEXT="🚀 <b>Oppo Find X7 Ultra Kernel Build Successful!</b>
           ━━━━━━━━━━━━━━━━━━
           <b>🏷️ Release Tag:</b> <code>${{ env.NEW_TAG }}</code>
           <b>🔐 Root Solution:</b> ${{ inputs.ksu_type }} (v${KSU_VERS})
@@ -1060,7 +1060,7 @@ jobs:
           
           ━━━━━━━━━━━━━━━━━━
           👉 <a href=\"${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ env.NEW_TAG }}\"><b>📥 GET YOUR KERNEL HERE</b></a>
-          📢 <a href=\"https://t.me/huangdihd_wildkernel\"><b>JOIN TELEGRAM CHANNEL</b></a>"
+          📢 <a href=\"https://t.me/psd_kernel\"><b>JOIN TELEGRAM CHANNEL</b></a>"
           
           # Split TG_CHAT_ID by comma or space
           IFS=' ,' read -r -a CHAT_IDS <<< "$TG_CHAT_ID"
@@ -1091,11 +1091,11 @@ jobs:
             RESPONSE_BODY=$(echo "$RESPONSE" | head -n -1)
 
             if [ "$HTTP_CODE" -eq 200 ]; then
-              echo "✅ Detailed Telegram notification sent successfully to $ID! response: $RESPONSE_BODY"
+              echo "✅ Thông báo chi tiết đã được gửi đến Telegram thành công với $ID! phản hồi: $RESPONSE_BODY"
             else
-              echo "❌ Failed to send Telegram notification to $ID! status code: $HTTP_CODE, response: $RESPONSE_BODY"
-              # We don't necessarily want to exit if one ID fails, but we should log it.
-              # However, if it's the only ID, maybe we should? Let's keep it robust.
+              echo "❌ Không thể gửi thông báo Telegram đến $ID! mã trạng thái: $HTTP_CODE, phản hồi: $RESPONSE_BODY"
+              # Chúng ta không nhất thiết phải thoát nếu một ID bị lỗi, nhưng chúng ta nên ghi lại lỗi đó.
+              # Tuy nhiên, nếu đó là ID duy nhất, có lẽ chúng ta nên làm vậy? Hãy giữ cho nó mạnh mẽ.
             fi
           done
           echo "::endgroup::"
