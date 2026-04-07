@@ -83,13 +83,25 @@ runs:
       run: |
         set -euo pipefail
         echo "::group::Validate inputs"
+        
+        # Gán giá trị ban đầu
         model="$OP_MODEL"
+        os_version="$OP_OS_VERSION"
+
+        # Logic thay đổi giá trị: Nếu model là X7U thì chuyển thành OP12
+        if [ "$model" = "X7U" ]; then
+          model="OP12"
+        fi
+        if [ "$os_version" = "COS16" ]; then
+          os_version="OOS16"
+        fi
+
         soc="$OP_SOC"
         branch="$OP_BRANCH"
         manifest="$OP_MANIFEST"
         android_version="$OP_ANDROID_VERSION"
         kernel_version="$OP_KERNEL_VERSION"
-        os_version="$OP_OS_VERSION"
+        
         hmbird="$OP_HMBIRD"
         susfs="$OP_SUSFS"
         bbg="$OP_BBG"
