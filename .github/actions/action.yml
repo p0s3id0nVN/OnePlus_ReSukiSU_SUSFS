@@ -12,6 +12,7 @@ inputs:
     options:
       - KSU
       - ReSukiSU
+    default: ReSukiSU
   ksu_branch_or_hash:
     description: 'KSU branch or commit hash (empty = auto-detect by ksu_type)'
     required: false
