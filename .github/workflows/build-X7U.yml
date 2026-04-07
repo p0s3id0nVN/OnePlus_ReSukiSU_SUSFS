@@ -657,7 +657,8 @@ jobs:
     if: ${{ inputs.make_release }}
     env:
       REPO_OWNER: ${{ github.repository_owner }}
-      REPO_NAME: 'p0s3id0n' #${{ github.event.repository.name }}
+      REPO_NAME: 'p0s3id0n' 
+      #${{ github.event.repository.name }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       RELEASE_NAME: 'Oppo X7 Ultra Kernels With ReSukiSU & SUSFS v2.1.0'
       SUSFS_BASE_VERSION: 'v2.1.0'
@@ -761,7 +762,7 @@ jobs:
             feature_flags=$(jq -r --arg MODEL "$model" '
               .[] | 
               select(.model == $MODEL) |
-              "\(.hmbird // false)\t\(.susfs // false)\t\(.bbr // false)\t\(.bbg // false)\t\(.ttl // false)\t\(.ip_set // false)\t\(.unicode // false)\t\(.kpm // false)"
+              "\(.hmbird // false)\t\(.susfs // false)\t\(.bbr // false)\t\(.bbg // false)\t\(.ttl // false)\t\(.ip_set // false)\t\(.unicode // false)"
             ' <<< "$JSON_BUILD_DATA")
             
             features=""
