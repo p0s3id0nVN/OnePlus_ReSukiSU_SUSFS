@@ -1,4 +1,4 @@
-name: ⚡ Fast Build Oppo Find X7 Ultra Kernels
+name: ⚡ Build Oppo Find X7 Ultra Kernels
 
 permissions:
   contents: write
@@ -116,20 +116,23 @@ jobs:
           jq_filter="."
           
           case "$input" in
-            OOS14+15+16)
-              ;;
-            OOS15+16)
-              jq_filter="map(select(.os_version == \"OOS15\" or .os_version == \"COS16\"))"
-              ;;
+            # OOS14+15+16)
+            #   ;;
+            # OOS15+16)
+            #   jq_filter="map(select(.os_version == \"OOS15\" or .os_version == \"OOS16\"))"
+            #   ;;
             # OOS14+15)
             #   jq_filter="map(select(.os_version == \"OOS14\" or .os_version == \"OOS15\"))"
             #   ;;
             COS16)
               jq_filter="map(select(.os_version == \"COS16\"))"
               ;;
-            OOS15)
-              jq_filter="map(select(.os_version == \"OOS15\"))"
-              ;;
+            # OOS16)
+            #   jq_filter="map(select(.os_version == \"OOS16\"))"
+            #   ;;
+            # OOS15)
+            #   jq_filter="map(select(.os_version == \"OOS15\"))"
+            #   ;;
             # OOS14)
             #   jq_filter="map(select(.os_version == \"OOS14\"))"
             #   ;;
@@ -138,7 +141,7 @@ jobs:
               IFS='-' read -r av kv <<< "$input"
               
               # Build android*-* only for OOS15 and COS16
-              jq_filter="map(select(.os_version == \"OOS15\" or .os_version == \"COS16\")) | map(select(.android_version == \"$av\" and .kernel_version == \"$kv\"))"
+              jq_filter="map(select(.os_version == \"OOS15\" or .os_version == \"OOS16\")) | map(select(.android_version == \"$av\" and .kernel_version == \"$kv\"))"
               
               echo "ℹ️  Android-Kernel filter applied: $av-$kv"
               echo "   Restricted to: OOS15 and COS16 only"
