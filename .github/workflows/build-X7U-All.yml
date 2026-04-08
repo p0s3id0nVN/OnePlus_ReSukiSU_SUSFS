@@ -184,6 +184,15 @@ jobs:
           if [ "$ksu_type" == "ReSukiSU" ]; then
             KSU_REPO_OWNER="ReSukiSU"
             KSU_REPO_NAME="ReSukiSU"
+          if [ "$ksu_type" == "SukiSU" ]; then
+            KSU_REPO_OWNER="SukiSU"
+            KSU_REPO_NAME="SukiSU"
+          if [ "$ksu_type" == "Wild" ]; then
+            KSU_REPO_OWNER="Wild"
+            KSU_REPO_NAME="Wild"
+          if [ "$ksu_type" == "KSUN" ]; then
+            KSU_REPO_OWNER="KSUN"
+            KSU_REPO_NAME="KSUN"
           else
             KSU_REPO_OWNER="tiann"
             KSU_REPO_NAME="KernelSU"
