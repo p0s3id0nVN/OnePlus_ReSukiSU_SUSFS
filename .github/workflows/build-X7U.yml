@@ -662,8 +662,9 @@ jobs:
       REPO_OWNER: ${{ github.repository_owner }}
       REPO_NAME: 'p0s3id0n' 
       #${{ github.event.repository.name }}
+      ksu_type="${{ inputs.ksu_type }}"
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      RELEASE_NAME: 'Oppo X7 Ultra Kernels With $KSU_TYPE & SUSFS v2.1.0'
+      RELEASE_NAME: 'Oppo X7 Ultra Kernels With $ksu_type & SUSFS v2.1.0'
       SUSFS_BASE_VERSION: 'v2.1.0'
     steps:
       - name: 📥 Checkout code
@@ -752,7 +753,7 @@ jobs:
             fi
           done
           
-          ksu_type="${{ inputs.ksu_type }}"
+          # ksu_type="${{ inputs.ksu_type }}"
           ksu_ref="${{ inputs.ksu_branch_or_hash }}"
           ksu_resolved_hash="${{ needs.set-op-model.outputs.ksu_resolved_hash }}"
           
@@ -847,7 +848,7 @@ jobs:
           }
           
           ksu_display=$(ksu_display_value "$ksu_ref" "$ksu_resolved_hash")
-          if [ "$KSU_TYPE" = "ReSukiSU" ]; then
+          if [ "$ksu_type" = "ReSukiSU" ]; then
             cat << EOF >> release_notes.md
           | **ReSukiSU Branch/Hash** | \`$KSU_BRANCH\` |
           | **ReSukiSU Version** | \`$ksu_ver_global\` |
