@@ -944,7 +944,7 @@ runs:
         set -euo pipefail
         echo "::group::Add KernelSU-Next"
         cd "$KERNEL_PLATFORM_FOLDER"
-        echo "Adding ReSukiSU..."
+        echo "Adding KernelSU-Next..."
         
         if [ "${{ inputs.ksu_branch_or_hash }}" = "" ]; then
           curl --fail --location --proto '=https' -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/main/kernel/setup.sh" | bash -
@@ -962,21 +962,22 @@ runs:
         
         cd ..
         
-        echo "ReSukiSU" >> "${ARTIFACTS_FOLDER}/${OP_MODEL}_${OP_OS_VERSION}.txt"
+        echo "KernelSU-Next" >> "${ARTIFACTS_FOLDER}/${OP_MODEL}_${OP_OS_VERSION}.txt"
         echo "$KSU_VERSION" >> "${ARTIFACTS_FOLDER}/${OP_MODEL}_${OP_OS_VERSION}.txt"
         echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
         
-        echo "SukiSU-Ultra Version: $KSU_VERSION"
-        echo "✅ SukiSU-Ultra added (commit: ${KSU_COMMIT_SHA:0:8})"
+        echo "KernelSU-Next Version: $KSU_VERSION"
+        echo "✅ KernelSU-Next added (commit: ${KSU_COMMIT_SHA:0:8})"
         echo "::endgroup::"
-        - name: Add SukiSU-Ultra (The SukiSU Project)
+        
+    - name: Add SukiSU-Ultra (The SukiSU Project)
       shell: bash
       if: ${{ inputs.ksu_type == 'SukiSU' }}
       run: |
         set -euo pipefail
-        echo "::group::Add SukiSU-Ultra"
+        echo "::group::Add SukiSU"
         cd "$KERNEL_PLATFORM_FOLDER"
-        echo "Adding ReSukiSU..."
+        echo "Adding SukiSU..."
         
         if [ "${{ inputs.ksu_branch_or_hash }}" = "" ]; then
           curl --fail --location --proto '=https' -LSs "https://raw.githubusercontent.com/SukiSU-Ultra/SukiSU-Ultra/main/kernel/setup.sh" | bash -
