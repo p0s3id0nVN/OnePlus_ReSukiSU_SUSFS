@@ -103,8 +103,8 @@ jobs:
           input="${{ inputs.op_model }}"
 
           # Kiểm tra điều kiện: nếu là COS16 thì đổi thành OSS16
-          if [ "$input" = "COS16" ]; then
-            input="OOS16"
+          if [ "$input" = "X7U" ]; then
+            input="OP12"
           fi
 
           # Xuất ra để kiểm tra (tùy chọn)
