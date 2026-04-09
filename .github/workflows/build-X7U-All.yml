@@ -675,7 +675,7 @@ jobs:
       REPO_NAME: 'p0s3id0n' 
       #${{ github.event.repository.name }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      RELEASE_NAME: 'Oppo X7 Ultra Kernels With ReSukiSU & SUSFS v2.1.0'
+      RELEASE_NAME: 'Oppo X7 Ultra Kernels With "${{ matrix.ksu_type }}" & SUSFS v2.1.0'
       SUSFS_BASE_VERSION: 'v2.1.0'
     steps:
       - name: 📥 Checkout code
@@ -685,18 +685,41 @@ jobs:
 
       - name: 🏷️ Generate and Create New Tag
         run: |
-          BASE_TAG="$SUSFS_BASE_VERSION-r0"
-          LATEST_TAG=$(gh api repos/$REPO_OWNER/$REPO_NAME/tags --jq '.[0].name')
+          set -euo pipefail
+          
+          # Lấy danh sách tag từ GitHub, sắp xếp theo phiên bản giảm dần
+          # Lọc bỏ các thông báo lỗi nếu repo chưa có tag nào
+          LATEST_TAG=$(git ls-remote --tags origin | awk -F/ '{print $3}' | grep "^${SUSFS_BASE_VERSION}-r" | sort -V | tail -n1) || LATEST_TAG=""
+
           if [ -z "$LATEST_TAG" ]; then
-            LATEST_TAG="$BASE_TAG"
+            # Nếu chưa có tag -r nào, bắt đầu từ r1
+            NEW_TAG="${SUSFS_BASE_VERSION}-r1"
           else
-            LATEST_TAG=$(printf "%s\n%s\n" "$LATEST_TAG" "$BASE_TAG" | sort -rV | head -n1)
+            # Tách số sau chữ -r và tăng lên 1
+            VERSION_BASE=$(echo "$LATEST_TAG" | cut -d'-' -f1)
+            REVISION=$(echo "$LATEST_TAG" | sed 's/.*-r//')
+            NEW_REVISION=$((REVISION + 1))
+            NEW_TAG="${VERSION_BASE}-r${NEW_REVISION}"
           fi
-          NEW_TAG=$(echo "$LATEST_TAG" | awk -F'-r' '{suffix=$2; if (!suffix) suffix=0; suffix++; printf "%s-r%d", $1, suffix}')
+
           echo "New tag: $NEW_TAG"
           echo "NEW_TAG=${NEW_TAG}" >> $GITHUB_ENV
+          
           git tag $NEW_TAG
           git push origin $NEW_TAG
+        # run: |
+        #   BASE_TAG="$SUSFS_BASE_VERSION-r0"
+        #   LATEST_TAG=$(gh api repos/$REPO_OWNER/$REPO_NAME/tags --jq '.[0].name')
+        #   if [ -z "$LATEST_TAG" ]; then
+        #     LATEST_TAG="$BASE_TAG"
+        #   else
+        #     LATEST_TAG=$(printf "%s\n%s\n" "$LATEST_TAG" "$BASE_TAG" | sort -rV | head -n1)
+        #   fi
+        #   NEW_TAG=$(echo "$LATEST_TAG" | awk -F'-r' '{suffix=$2; if (!suffix) suffix=0; suffix++; printf "%s-r%d", $1, suffix}')
+        #   echo "New tag: $NEW_TAG"
+        #   echo "NEW_TAG=${NEW_TAG}" >> $GITHUB_ENV
+        #   git tag $NEW_TAG
+        #   git push origin $NEW_TAG
 
       - name: 📥 Download Artifacts
         uses: actions/download-artifact@v8
