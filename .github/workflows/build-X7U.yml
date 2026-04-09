@@ -693,8 +693,14 @@ jobs:
           echo "New tag: $NEW_TAG"
           echo "NEW_TAG=${NEW_TAG}" >> $GITHUB_ENV
           
+          # Cấu hình danh tính để git không báo lỗi
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
           git tag $NEW_TAG
-          git push origin $NEW_TAG
+          
+          # Push sử dụng Token để xác thực quyền sửa workflow
+          git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git $NEW_TAG
         # run: |
         #   BASE_TAG="$SUSFS_BASE_VERSION-r0"
         #   LATEST_TAG=$(gh api repos/$REPO_OWNER/$REPO_NAME/tags --jq '.[0].name')
