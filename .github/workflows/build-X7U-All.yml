@@ -1,4 +1,4 @@
-name: ⚡ Build Oppo Find X7 Ultra Kernels
+name: ⚡ Build Find X7 Ultra OKI
 
 permissions:
   contents: write
@@ -350,7 +350,6 @@ jobs:
         run: |
           ksu_type="${{ inputs.ksu_type }}"
           ksu_ref="${{ inputs.ksu_branch_or_hash }}"
-
           ksu_display=""
 
           # Thêm SukiSU và KSUN vào điều kiện kiểm tra
