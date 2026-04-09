@@ -1,4 +1,4 @@
-name: ⚡ Build Find X7 Ultra Kernels
+name: ⚡ Build Oppo Find X7 Ultra Kernels
 
 permissions:
   contents: write
@@ -27,7 +27,6 @@ on:
         options:
           - ReSukiSU
           - SukiSU
-          - Wild
           - KSUN
           - KSU
         default: ReSukiSU
@@ -99,17 +98,7 @@ jobs:
           set -euo pipefail
           echo "::group::Matrix generation"
           
-          # Lấy giá trị từ input
           input="${{ inputs.op_model }}"
-          # Kiểm tra điều kiện: nếu là COS16 thì đổi thành OSS16
-          # if [ "$input" = "COS16" ]; then
-          #   input="OOS16"
-          # fi
-
-          # Xuất ra để kiểm tra (tùy chọn)
-          echo "Model đã xử lý: $input"
-          # Nếu bạn muốn sử dụng biến này cho các bước sau trong GitHub Actions
-          # echo "OP_MODEL_PROCESSED=$input" >> $GITHUB_ENV
           ksu_type="${{ inputs.ksu_type }}"
           ksu_hash="${{ inputs.ksu_branch_or_hash }}"
           
@@ -153,11 +142,11 @@ jobs:
               # Extract android version and kernel version
               IFS='-' read -r av kv <<< "$input"
               
-              # Build android*-* only for OOS15 and OOS16
+              # Build android*-* only for OOS15 and COS16
               jq_filter="map(select(.os_version == \"OOS15\" or .os_version == \"OOS16\")) | map(select(.android_version == \"$av\" and .kernel_version == \"$kv\"))"
               
               echo "ℹ️  Android-Kernel filter applied: $av-$kv"
-              echo "   Restricted to: OOS15 and OOS16 only"
+              echo "   Restricted to: OOS15 and COS16 only"
               ;;
             *)
               echo "::warning::Unknown input '$input'. Using empty filter."
@@ -194,15 +183,6 @@ jobs:
           if [ "$ksu_type" == "ReSukiSU" ]; then
             KSU_REPO_OWNER="ReSukiSU"
             KSU_REPO_NAME="ReSukiSU"
-          if [ "$ksu_type" == "SukiSU" ]; then
-            KSU_REPO_OWNER="SukiSU"
-            KSU_REPO_NAME="SukiSU"
-          if [ "$ksu_type" == "Wild" ]; then
-            KSU_REPO_OWNER="Wild"
-            KSU_REPO_NAME="Wild"
-          if [ "$ksu_type" == "KSUN" ]; then
-            KSU_REPO_OWNER="KSUN"
-            KSU_REPO_NAME="KSUN"
           else
             KSU_REPO_OWNER="tiann"
             KSU_REPO_NAME="KernelSU"
@@ -370,15 +350,20 @@ jobs:
         run: |
           ksu_type="${{ inputs.ksu_type }}"
           ksu_ref="${{ inputs.ksu_branch_or_hash }}"
-          
+
           ksu_display=""
-          if [ "$ksu_type" = "ReSukiSU" ] || [ "$ksu_type" = "KSU" ]; then
+
+          # Thêm SukiSU và KSUN vào điều kiện kiểm tra
+          if [ "$ksu_type" = "ReSukiSU" ] || [ "$ksu_type" = "KSU" ] || [ "$ksu_type" = "SukiSU" ] || [ "$ksu_type" = "KSUN" ]; then
+            # Kiểm tra xem ksu_ref có phải là một mã Hash commit (40 ký tự) hay không
             if [[ "$ksu_ref" =~ ^[0-9a-f]{40}$ ]]; then
               ksu_display+="📌 \`$ksu_type\`, \`$ksu_ref\`"
             else
+              # Nếu là tên nhánh (branch), hiển thị kèm theo mã hash đã được resolve
               ksu_display+="🔀 \`$ksu_type\`, \`$ksu_ref\` (\`${{ steps.set-matrix.outputs.ksu_resolved_hash }}\`)"
             fi
           fi
+
           {
             cat << 'EOF'
           ## 🎯 Build Plan
