@@ -554,6 +554,10 @@ jobs:
             echo "  - Kernel: ${{ steps.build.outputs.kernel_version }}"
             if [ "${{ matrix.ksu_type }}" = "ReSukiSU" ]; then
               echo "  - ReSukiSU: v${{ steps.build.outputs.ksu_version }}"
+            elseif [ "${{ matrix.ksu_type }}" = "SukiSU" ]; then
+              echo "  - RSukiSU: v${{ steps.build.outputs.ksu_version }}"
+            elseif [ "${{ matrix.ksu_type }}" = "KSUN" ]; then
+              echo "  - KSUN: v${{ steps.build.outputs.ksu_version }}"
             else
               echo "  - KSU: v${{ steps.build.outputs.ksu_version }}"
             fi
@@ -606,6 +610,14 @@ jobs:
             if [ "${{ matrix.ksu_type }}" = "ReSukiSU" ]; then
               cat >> $GITHUB_STEP_SUMMARY << EOF
           | **ReSukiSU** | v${{ steps.build.outputs.ksu_version }} |
+          EOF
+          elseif [ "${{ matrix.ksu_type }}" = "SukiSU" ]; then
+              cat >> $GITHUB_STEP_SUMMARY << EOF
+          | **SukiSU** | v${{ steps.build.outputs.ksu_version }} |
+          EOF
+          if [ "${{ matrix.ksu_type }}" = "KSUN" ]; then
+              cat >> $GITHUB_STEP_SUMMARY << EOF
+          | **KSUN** | v${{ steps.build.outputs.ksu_version }} |
           EOF
             else
               cat >> $GITHUB_STEP_SUMMARY << EOF
@@ -858,6 +870,16 @@ jobs:
           | **ReSukiSU Branch/Hash** | \`$KSU_BRANCH\` |
           | **ReSukiSU Version** | \`$ksu_ver_global\` |
           EOF
+          if [ "$KSU_TYPE" = "SukiSU" ]; then
+            cat << EOF >> release_notes.md
+          | **SukiSU-Ultra Branch/Hash** | \`$KSU_BRANCH\` |
+          | **SukiSU-Ultra Version** | \`$ksu_ver_global\` |
+          EOF
+          if [ "$KSU_TYPE" = "KSUN" ]; then
+            cat << EOF >> release_notes.md
+          | **KernelSU-Next Branch/Hash** | \`$KSU_BRANCH\` |
+          | **KernelSU-Next Version** | \`$ksu_ver_global\` |
+          EOF
           elif [ "$ksu_type" == "KSU" ]; then
             cat << EOF >> release_notes.md
           | **KernelSU Branch** | \`$ksu_display\` |
@@ -888,6 +910,14 @@ jobs:
           if [ "$ksu_type" == "ReSukiSU" ]; then
             cat << EOF >> release_notes.md
           - **ReSukiSU** - Kernel-based Android Root Solution,forked from sukisu
+          EOF
+          if [ "$ksu_type" == "SukiSU" ]; then
+            cat << EOF >> release_notes.md
+          - **SukiSU** - Kernel-based Android Root Solution,forked from sukisu
+          EOF
+          if [ "$ksu_type" == "KSUN" ]; then
+            cat << EOF >> release_notes.md
+          - **KernerlSU-Next** - Kernel-based Android Root Solution,forked from sukisu
           EOF
           elif [ "$ksu_type" == "KSU" ]; then
             cat << EOF >> release_notes.md
