@@ -1,4 +1,4 @@
-name: ⚡ Build Find X7 Ultra OKI
+name: ⚡ Build Oppo Find X7 Ultra Kernels
 
 permissions:
   contents: write
@@ -183,10 +183,10 @@ jobs:
           if [ "$ksu_type" == "ReSukiSU" ]; then
             KSU_REPO_OWNER="ReSukiSU"
             KSU_REPO_NAME="ReSukiSU"
-          elif [ "$ksu_type" == "SukiSU" ]; then
+          elseif [ "$ksu_type" == "ReSukiSU" ]; then
             KSU_REPO_OWNER="SukiSU"
             KSU_REPO_NAME="SukiSU"
-          elif [ "$ksu_type" == "KSUN" ]; then
+          elseif [ "$ksu_type" == "KSUN" ]; then
             KSU_REPO_OWNER="KernelSU-Next"
             KSU_REPO_NAME="KernelSU-Next"
           else
@@ -356,19 +356,15 @@ jobs:
         run: |
           ksu_type="${{ inputs.ksu_type }}"
           ksu_ref="${{ inputs.ksu_branch_or_hash }}"
+          
           ksu_display=""
-
-          # Thêm SukiSU và KSUN vào điều kiện kiểm tra
-          if [ "$ksu_type" = "ReSukiSU" ] || [ "$ksu_type" = "KSU" ] || [ "$ksu_type" = "SukiSU" ] || [ "$ksu_type" = "KSUN" ]; then
-            # Kiểm tra xem ksu_ref có phải là một mã Hash commit (40 ký tự) hay không
+          if [ "$ksu_type" = "ReSukiSU" ] || [ "$ksu_type" = "KSU" ]; then
             if [[ "$ksu_ref" =~ ^[0-9a-f]{40}$ ]]; then
               ksu_display+="📌 \`$ksu_type\`, \`$ksu_ref\`"
             else
-              # Nếu là tên nhánh (branch), hiển thị kèm theo mã hash đã được resolve
               ksu_display+="🔀 \`$ksu_type\`, \`$ksu_ref\` (\`${{ steps.set-matrix.outputs.ksu_resolved_hash }}\`)"
             fi
           fi
-
           {
             cat << 'EOF'
           ## 🎯 Build Plan
@@ -554,10 +550,6 @@ jobs:
             echo "  - Kernel: ${{ steps.build.outputs.kernel_version }}"
             if [ "${{ matrix.ksu_type }}" = "ReSukiSU" ]; then
               echo "  - ReSukiSU: v${{ steps.build.outputs.ksu_version }}"
-            elseif [ "${{ matrix.ksu_type }}" = "SukiSU" ]; then
-              echo "  - RSukiSU: v${{ steps.build.outputs.ksu_version }}"
-            elseif [ "${{ matrix.ksu_type }}" = "KSUN" ]; then
-              echo "  - KSUN: v${{ steps.build.outputs.ksu_version }}"
             else
               echo "  - KSU: v${{ steps.build.outputs.ksu_version }}"
             fi
@@ -610,14 +602,6 @@ jobs:
             if [ "${{ matrix.ksu_type }}" = "ReSukiSU" ]; then
               cat >> $GITHUB_STEP_SUMMARY << EOF
           | **ReSukiSU** | v${{ steps.build.outputs.ksu_version }} |
-          EOF
-          elseif [ "${{ matrix.ksu_type }}" = "SukiSU" ]; then
-              cat >> $GITHUB_STEP_SUMMARY << EOF
-          | **SukiSU** | v${{ steps.build.outputs.ksu_version }} |
-          EOF
-          if [ "${{ matrix.ksu_type }}" = "KSUN" ]; then
-              cat >> $GITHUB_STEP_SUMMARY << EOF
-          | **KSUN** | v${{ steps.build.outputs.ksu_version }} |
           EOF
             else
               cat >> $GITHUB_STEP_SUMMARY << EOF
@@ -687,7 +671,7 @@ jobs:
       REPO_NAME: 'p0s3id0n' 
       #${{ github.event.repository.name }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      RELEASE_NAME: 'Oppo X7 Ultra Kernels With "${{ matrix.ksu_type }}" & SUSFS v2.1.0'
+      RELEASE_NAME: "Oppo X7 Ultra Kernels With $ksu_type & SUSFS $SUSFS_BASE_VERSION"
       SUSFS_BASE_VERSION: 'v2.1.0'
     steps:
       - name: 📥 Checkout code
@@ -725,7 +709,6 @@ jobs:
           
           # Push sử dụng Token để xác thực quyền sửa workflow
           git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git $NEW_TAG
-                       
         # run: |
         #   BASE_TAG="$SUSFS_BASE_VERSION-r0"
         #   LATEST_TAG=$(gh api repos/$REPO_OWNER/$REPO_NAME/tags --jq '.[0].name')
@@ -777,7 +760,7 @@ jobs:
             fi
           done
           
-          ksu_type="${{ inputs.ksu_type }}"
+          # ksu_type="${{ inputs.ksu_type }}"
           ksu_ref="${{ inputs.ksu_branch_or_hash }}"
           ksu_resolved_hash="${{ needs.set-op-model.outputs.ksu_resolved_hash }}"
           
@@ -872,19 +855,19 @@ jobs:
           }
           
           ksu_display=$(ksu_display_value "$ksu_ref" "$ksu_resolved_hash")
-          if [ "$KSU_TYPE" = "ReSukiSU" ]; then
+          if [ "$ksu_type" = "ReSukiSU" ]; then
             cat << EOF >> release_notes.md
           | **ReSukiSU Branch/Hash** | \`$KSU_BRANCH\` |
           | **ReSukiSU Version** | \`$ksu_ver_global\` |
           EOF
-          if [ "$KSU_TYPE" = "SukiSU" ]; then
+          elif [ "$ksu_type" == "SukiSU" ]; then
             cat << EOF >> release_notes.md
-          | **SukiSU-Ultra Branch/Hash** | \`$KSU_BRANCH\` |
+          | **SukiSU-Ultra Branch** | \`$ksu_display\` |
           | **SukiSU-Ultra Version** | \`$ksu_ver_global\` |
           EOF
-          if [ "$KSU_TYPE" = "KSUN" ]; then
+          elif [ "$ksu_type" == "KSUN" ]; then
             cat << EOF >> release_notes.md
-          | **KernelSU-Next Branch/Hash** | \`$KSU_BRANCH\` |
+          | **KernelSU-Next Branch** | \`$ksu_display\` |
           | **KernelSU-Next Version** | \`$ksu_ver_global\` |
           EOF
           elif [ "$ksu_type" == "KSU" ]; then
@@ -917,14 +900,6 @@ jobs:
           if [ "$ksu_type" == "ReSukiSU" ]; then
             cat << EOF >> release_notes.md
           - **ReSukiSU** - Kernel-based Android Root Solution,forked from sukisu
-          EOF
-          if [ "$ksu_type" == "SukiSU" ]; then
-            cat << EOF >> release_notes.md
-          - **SukiSU** - Kernel-based Android Root Solution,forked from sukisu
-          EOF
-          if [ "$ksu_type" == "KSUN" ]; then
-            cat << EOF >> release_notes.md
-          - **KernerlSU-Next** - Kernel-based Android Root Solution,forked from sukisu
           EOF
           elif [ "$ksu_type" == "KSU" ]; then
             cat << EOF >> release_notes.md
