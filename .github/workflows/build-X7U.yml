@@ -663,7 +663,7 @@ jobs:
       REPO_NAME: 'p0s3id0n' 
       #${{ github.event.repository.name }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      RELEASE_NAME: 'Oppo X7 Ultra Kernels With "${{ matrix.ksu_type }}" & SUSFS v2.1.0'
+      RELEASE_NAME: 'Oppo X7 Ultra Kernels With $KSU_TYPE & SUSFS v2.1.0'
       SUSFS_BASE_VERSION: 'v2.1.0'
     steps:
       - name: 📥 Checkout code
