@@ -50,10 +50,10 @@ on:
       #   description: 'Enter SusFS Branch or commit hash for android13-5.15'
       #   type: string
       #   default: ''      
-      # android14-6_1_susfs_branch_or_commit:
-      #   description: 'Nhập SusFS Branch or commit hash cho android14-6.1'
-      #   type: string
-      #   default: ''
+      android14-6_1_susfs_branch_or_commit:
+        description: 'Nhập SusFS Branch or commit hash cho android14-6.1'
+        type: string
+        default: ''
       # android15-6_6_susfs_branch_or_commit:
       #   description: 'Enter SusFS Branch or commit hash for android15-6.6'
       #   type: string

@@ -101,17 +101,15 @@ jobs:
           
           # Lấy giá trị từ input
           input="${{ inputs.op_model }}"
-
           # Kiểm tra điều kiện: nếu là COS16 thì đổi thành OSS16
-          if [ "$input" = "X7U" ]; then
-            input="OP12"
-          fi
+          # if [ "$input" = "COS16" ]; then
+          #   input="OOS16"
+          # fi
 
           # Xuất ra để kiểm tra (tùy chọn)
           echo "Model đã xử lý: $input"
-          
           # Nếu bạn muốn sử dụng biến này cho các bước sau trong GitHub Actions
-          echo "OP_MODEL_PROCESSED=$input" >> $GITHUB_ENV
+          # echo "OP_MODEL_PROCESSED=$input" >> $GITHUB_ENV
           ksu_type="${{ inputs.ksu_type }}"
           ksu_hash="${{ inputs.ksu_branch_or_hash }}"
           
@@ -140,7 +138,7 @@ jobs:
             #   jq_filter="map(select(.os_version == \"OOS14\" or .os_version == \"OOS15\"))"
             #   ;;
             COS16)
-              jq_filter="map(select(.os_version == \"COS16\"))"
+              jq_filter="map(select(.os_version == \"OOS16\"))"
               ;;
             # OOS16)
             #   jq_filter="map(select(.os_version == \"OOS16\"))"
@@ -174,6 +172,8 @@ jobs:
             echo "::error::No config files found for input '$input' after applying filters!"
             echo ""
             echo "Available configurations:"
+            if [(.model)=\"X7U"]; then (.model)=\"OP12"
+            fi
             jq -r '.[] | "  - \(.model) (\(.os_version), \(.android_version)-\(.kernel_version))"' matrix.json
             exit 1
           fi
