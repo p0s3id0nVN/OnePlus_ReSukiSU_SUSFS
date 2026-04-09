@@ -668,8 +668,7 @@ jobs:
     if: ${{ inputs.make_release }}
     env:
       REPO_OWNER: ${{ github.repository_owner }}
-      REPO_NAME: 'p0s3id0n' 
-      #${{ github.event.repository.name }}
+      REPO_NAME: ${{ github.event.repository.name }}
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       RELEASE_NAME: "Oppo X7 Ultra Kernels With $ksu_type & SUSFS $SUSFS_BASE_VERSION"
       SUSFS_BASE_VERSION: 'v2.1.0'
