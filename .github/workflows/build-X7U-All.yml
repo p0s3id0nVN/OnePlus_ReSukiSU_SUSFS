@@ -138,7 +138,7 @@ jobs:
             #   jq_filter="map(select(.os_version == \"OOS14\" or .os_version == \"OOS15\"))"
             #   ;;
             COS16)
-              jq_filter="map(select(.os_version == \"OOS16\"))"
+              jq_filter="map(select(.os_version == \"COS16\"))"
               ;;
             # OOS16)
             #   jq_filter="map(select(.os_version == \"OOS16\"))"
@@ -172,8 +172,6 @@ jobs:
             echo "::error::No config files found for input '$input' after applying filters!"
             echo ""
             echo "Available configurations:"
-            if [(.model)=\"X7U"]; then (.model)=\"OP12"
-            fi
             jq -r '.[] | "  - \(.model) (\(.os_version), \(.android_version)-\(.kernel_version))"' matrix.json
             exit 1
           fi
