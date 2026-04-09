@@ -183,6 +183,12 @@ jobs:
           if [ "$ksu_type" == "ReSukiSU" ]; then
             KSU_REPO_OWNER="ReSukiSU"
             KSU_REPO_NAME="ReSukiSU"
+          elif [ "$ksu_type" == "SukiSU" ]; then
+            KSU_REPO_OWNER="SukiSU"
+            KSU_REPO_NAME="SukiSU"
+          elif [ "$ksu_type" == "KSUN" ]; then
+            KSU_REPO_OWNER="KernelSU-Next"
+            KSU_REPO_NAME="KernelSU-Next"
           else
             KSU_REPO_OWNER="tiann"
             KSU_REPO_NAME="KernelSU"
