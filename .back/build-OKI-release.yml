@@ -3,7 +3,6 @@ name: ⚡ Build (OKI) ALL
 permissions:
   contents: write
   actions: write
-  workflows: write
 
 on:
   workflow_dispatch:
