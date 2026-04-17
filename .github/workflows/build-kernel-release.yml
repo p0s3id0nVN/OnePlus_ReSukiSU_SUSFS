@@ -101,30 +101,7 @@ jobs:
           sparse-checkout: |
             configs/
           sparse-checkout-cone-mode: false
-      - name: Set Environment Variables
-        run: |
-          # 1. Lấy giá trị trực tiếp từ inputs
-          KSU_TYPE="${{ inputs.ksu_type }}"
-          KSU_HASH_INPUT="${{ inputs.ksu_branch_or_hash }}"
-          
-          # 2. Xử lý logic tự động chọn branch/hash
-          if [ "$KSU_TYPE" = "KSUN" ]; then
-              # Nếu chọn KSUN, ép buộc dùng nhánh dev
-              FINAL_KSU_HASH="dev"
-              # Bạn có thể đổi luôn type thành chữ thường nếu script sau này yêu cầu 'ksun'
-              FINAL_KSU_TYPE="ksun" 
-              echo "Auto-selected 'dev' branch for KSUN"
-          else
-              # Với ReSukiSU hoặc KSU, sử dụng giá trị người dùng nhập (mặc định là main)
-              FINAL_KSU_HASH="$KSU_HASH_INPUT"
-              FINAL_KSU_TYPE="$KSU_TYPE"
-          fi
-          
-          # 3. Xuất kết quả ra GITHUB_ENV để các bước sau (Sync/Patch) sử dụng
-          echo "ksu_type=$FINAL_KSU_TYPE" >> $GITHUB_ENV
-          echo "ksu_hash=$FINAL_KSU_HASH" >> $GITHUB_ENV
-          echo "op_model=$op_model" >> $GITHUB_ENV
-
+      
       - name: 🔍 Generate build matrix
         id: set-matrix
         shell: bash
@@ -132,9 +109,27 @@ jobs:
           set -euo pipefail
           echo "::group::Matrix generation"
           
+          # 1. Lấy giá trị trực tiếp từ inputs
+          ksu_type="${{ inputs.ksu_type }}"
+          ksu_hash_input="${{ inputs.ksu_branch_or_hash }}"
+          
+          # 2. Xử lý logic tự động chọn branch/hash
+          if [ "$ksu_type" = "KSUN" ]; then
+              # Nếu chọn KSUN, ép buộc dùng nhánh dev
+              FINAL_KSU_HASH="dev"
+              # Bạn có thể đổi luôn type thành chữ thường nếu script sau này yêu cầu 'ksun'
+              FINAL_KSU_TYPE="ksun" 
+              echo "Auto-selected 'dev' branch for KSUN"
+          else
+              # Với ReSukiSU hoặc KSU, sử dụng giá trị người dùng nhập (mặc định là main)
+              FINAL_KSU_HASH="$ksu_hash_input"
+              FINAL_KSU_TYPE="$ksu_type"
+          fi
+          
+          # 3. Xuất kết quả ra GITHUB_ENV để các bước sau (Sync/Patch) sử dụng
+          echo "ksu_type=$FINAL_KSU_TYPE" >> $GITHUB_ENV
+          echo "ksu_hash=$FINAL_KSU_HASH" >> $GITHUB_ENV
           echo "op_model=$op_model" >> $GITHUB_ENV
-          echo "ksu_type=$ksu_type" >> $GITHUB_ENV
-          echo "ksu_hash=$ksu_hash" >> $GITHUB_ENV
           
           echo "[" > matrix.json
           mapfile -t all_json_files < <(find configs/ -name "*.json" -print0 | xargs -0 -n1)
