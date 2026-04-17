@@ -1,4 +1,4 @@
-name: ⚡ Build OnePlus Kernels
+name: ⚡ Build OKI Kernels (Release)
 
 permissions:
   contents: write
