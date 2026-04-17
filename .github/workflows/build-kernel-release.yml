@@ -113,7 +113,7 @@ jobs:
           ksu_type="${{ inputs.ksu_type }}"
           ksu_hash="${{ inputs.ksu_branch_or_hash }}"
           if [ -z "$ksu_hash" ]; then
-              if [ "$ksu_type" = "KSUN" ]; then
+              if [ "$ksu_type" = "ksun" ]; then
                   ksu_hash="dev"
               else
                   ksu_hash="main"
