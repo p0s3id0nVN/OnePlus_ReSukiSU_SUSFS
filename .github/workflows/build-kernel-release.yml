@@ -1129,23 +1129,47 @@ jobs:
           
           echo "--- Final Release Notes ---"
           cat release_notes.md
-
-      - name: 🚀 Create GitHub Release
+      
+      - name: 🏷️ Generate and Create New Tag
         run: |
-          gh release create "${{ env.NEW_TAG }}" \
-            --repo "${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}" \
-            --title "${{ env.RELEASE_NAME }}" \
-            --notes-file release_notes.md \
-            --draft
+          # Cấu hình danh tính để Git cho phép tạo Tag
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
 
-      - name: 📤 Upload Release Assets Dynamically
-        run: |
-          for file in ./downloaded-artifacts/*.zip; do
-            if [ -f "$file" ]; then
-              echo "Uploading $file..."
-              gh release upload "${{ env.NEW_TAG }}" "$file" --clobber
-            fi
-          done
+          # Logic lấy Tag cũ của bạn
+          LATEST_MATCHING_TAG=$(gh api repos/$REPO_OWNER/$REPO_NAME/tags \
+            --jq "[.[] | select(.name | startswith(\"${SUSFS_BASE_VERSION}-r\"))] \
+                  | sort_by(.name | split(\"-r\")[1] | tonumber) \
+                  | last | .name // empty")
+          
+          if [ -z "$LATEST_MATCHING_TAG" ]; then
+            NEW_TAG="${SUSFS_BASE_VERSION}-r1"
+          else
+            NEW_TAG=$(echo "$LATEST_MATCHING_TAG" | awk -F'-r' '{printf "%s-r%d", $1, $2+1}')
+          fi
+          
+          echo "New tag: $NEW_TAG"
+          echo "NEW_TAG=${NEW_TAG}" >> $GITHUB_ENV
+          
+          # Push tag sử dụng token đã có quyền workflow
+          git tag $NEW_TAG
+          git push origin $NEW_TAG   
+      # - name: 🚀 Create GitHub Release
+      #   run: |
+      #     gh release create "${{ env.NEW_TAG }}" \
+      #       --repo "${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}" \
+      #       --title "${{ env.RELEASE_NAME }}" \
+      #       --notes-file release_notes.md \
+      #       --draft
+
+      # - name: 📤 Upload Release Assets Dynamically
+      #   run: |
+      #     for file in ./downloaded-artifacts/*.zip; do
+      #       if [ -f "$file" ]; then
+      #         echo "Uploading $file..."
+      #         gh release upload "${{ env.NEW_TAG }}" "$file" --clobber
+      #       fi
+      #     done
 
       - name: 📊 Release summary
         if: success()
