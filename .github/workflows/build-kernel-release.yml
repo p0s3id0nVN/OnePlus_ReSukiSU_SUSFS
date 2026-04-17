@@ -40,12 +40,8 @@ on:
         default: ReSukiSU
       ksu_branch_or_hash:
         description: 'KSU branch or commit hash'
-        type: choice
-        options:
-          - (empty) # Auto-detect based on ksu_type
-          - main
-          - dev
-        default: 'main'
+        type: string
+        default: ''
       optimize_level:
         description: "Compiler optimization level"
         required: true
