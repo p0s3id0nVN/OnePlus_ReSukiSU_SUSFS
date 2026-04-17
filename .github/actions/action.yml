@@ -803,6 +803,11 @@ runs:
         }
         
         retry_clone "https://github.com/p0s3id0nVN/AnyKernel30" "$ANYKERNEL_BRANCH"
+        # Đổi tên thư mục từ AnyKernel30 thành AnyKernel3
+        if [ -d "AnyKernel30" ]; then
+            mv AnyKernel30 AnyKernel3
+            echo "Renamed AnyKernel30 to AnyKernel3"
+        fi
         retry_clone "https://github.com/TheWildJames/kernel_patches.git"
 
         echo "Downloading SukiSU_KernelPatch..."
