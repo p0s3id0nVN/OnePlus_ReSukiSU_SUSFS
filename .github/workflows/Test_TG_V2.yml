@@ -1,0 +1,68 @@
+name: 📱 Telegram Notice
+
+on:
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Send Notification
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TG_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_ID: ${{ secrets.TG_CHAT_ID }}
+        shell: bash
+        run: |
+          set -e
+          
+          echo "::group::Fetching Release Data"
+          # Sử dụng --silent để tránh rác log và lưu output vào file tạm
+          gh api repos/${{ github.repository }}/releases/latest > rel_data.json || echo "ERROR" > rel_data.json
+          
+          # Kiểm tra nếu file chứa nội dung lỗi hoặc không phải JSON
+          if grep -q "message" rel_data.json || grep -q "ERROR" rel_data.json; then
+            echo "❌ Lỗi: Không tìm thấy Release hoặc Token không có quyền truy cập."
+            cat rel_data.json
+            exit 0
+          fi
+          
+          # Bây giờ mới an tâm sử dụng jq vì chắc chắn là JSON hợp lệ
+          TAG=$(jq -r .tag_name rel_data.json)
+          URL="https://github.com/${{ github.repository }}/releases/tag/$TAG"
+          ASSETS=$(jq -r '.assets[].name' rel_data.json)
+          echo "::endgroup::"
+
+          if [ -z "$ASSETS" ] || [ "$ASSETS" = "null" ]; then
+            echo "⚠️ Release này không có assets."
+            exit 0
+          fi
+
+          # Trích xuất thông tin từ tên file zip
+          MODELS=$(echo "$ASSETS" | grep '\.zip$' | awk -F'_' '{print $2}' | sort -u | xargs | sed 's/ /, /g')
+          OS_VERS=$(echo "$ASSETS" | grep '\.zip$' | awk -F'_' '{print $3}' | sort -u | xargs | sed 's/ /, /g')
+          COUNT=$(echo "$ASSETS" | grep -c '\.zip$' || echo 0)
+
+          # Soạn nội dung HTML
+          TEXT="🚀 <b>OnePlus Kernel Update!</b>%0A"
+          TEXT+="━━━━━━━━━━━━━━━━━━%0A"
+          TEXT+="<b>🏷️ Tag:</b> <code>$TAG</code>%0A"
+          TEXT+="<b>📦 Số lượng:</b> $COUNT zips%0A"
+          TEXT+="<b>📱 Model:</b> ${MODELS:-N/A}%0A"
+          TEXT+="<b>💻 OS:</b> ${OS_VERS:-N/A}%0A"
+          TEXT+="━━━━━━━━━━━━━━━━━━%0A"
+          TEXT+="👉 <a href='$URL'><b>📥 DOWNLOAD HERE</b></a>"
+
+          # Gửi tin nhắn qua Telegram
+          IFS=' ,' read -ra IDS <<< "$TG_ID"
+          for ID in "${IDS[@]}"; do
+            if [ -n "$ID" ]; then
+              curl -s -X POST "https://api.telegram.org/bot$TG_TOKEN/sendMessage" \
+                -d "chat_id=$ID" \
+                -d "parse_mode=HTML" \
+                -d "disable_web_page_preview=true" \
+                -d "text=$TEXT" | jq .ok || echo "Failed to send to $ID"
+            fi
+          done
