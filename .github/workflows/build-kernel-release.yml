@@ -109,18 +109,31 @@ jobs:
           set -euo pipefail
           echo "::group::Matrix generation"
           
-          input="${{ inputs.op_model }}"
-          ksu_type="${{ inputs.ksu_type }}"
-          ksu_hash="${{ inputs.ksu_branch_or_hash }}"
-          if [ -z "$ksu_hash" ]; then
-              if [ "$ksu_type" = "ksun" ]; then
-                  ksu_hash="dev"
-              else
-                  ksu_hash="main"
-              fi
+          # Lấy input từ GitHub Actions
+          op_model="${{ inputs.op_model }}"
+          ksu_type_input="${{ inputs.ksu_type }}"
+          ksu_hash_input="${{ inputs.ksu_branch_or_hash }}"
+
+          # Logic xử lý điều kiện
+          if [ "$ksu_type_input" = "KSUN" ]; then
+            # Nếu là KSUN: đổi type thành chữ thường và hash là dev
+            ksu_type="ksun"
+            ksu_hash="dev"
+          else
+            # Ngược lại: giữ nguyên type (hoặc tùy biến) và hash là main
+            ksu_type="$ksu_type_input"
+            ksu_hash="main"
           fi
+
+          # Xuất ra log để kiểm tra (tùy chọn)
+          echo "Model: $op_model"
           echo "KSU Type: $ksu_type"
-          echo "KSU Hash/Branch: $ksu_hash"
+          echo "KSU Hash: $ksu_hash"
+
+          # Lưu vào GITHUB_ENV để các bước sau có thể sử dụng
+          echo "OP_MODEL=$op_model" >> $GITHUB_ENV
+          echo "KSU_TYPE=$ksu_type" >> $GITHUB_ENV
+          echo "KSU_HASH=$ksu_hash" >> $GITHUB_ENV
           
           echo "[" > matrix.json
           mapfile -t all_json_files < <(find configs/ -name "*.json" -print0 | xargs -0 -n1)
