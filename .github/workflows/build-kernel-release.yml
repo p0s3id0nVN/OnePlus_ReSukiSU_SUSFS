@@ -116,7 +116,6 @@ jobs:
           if [ "$ksu_type" == "KSUN" ]; then
             if [ -z "$ksu_hash" ] || [ "$ksu_hash" == "main" ]; then
               ksu_hash="dev"
-              ksu_type="ksun"
             fi
           else
             if [ -z "$ksu_hash" ] || [ "$ksu_hash" == "dev" ]; then
@@ -197,7 +196,7 @@ jobs:
           echo "count=$count" >> "$GITHUB_OUTPUT"
           
           ksu_type="${{ inputs.ksu_type }}"
-          ksu_ref="${{ inputs.ksu_branch_or_hash }}"
+          ksu_ref="$ksu_hash"
           
           if [ "$ksu_type" == "ReSukiSU" ]; then
             KSU_REPO_OWNER="ReSukiSU"
