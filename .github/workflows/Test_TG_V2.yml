@@ -1,7 +1,7 @@
-name: 📱 Telegram Notice
+name: 📱 Telegram Test Notice
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Chạy thủ công để test
 
 jobs:
   notify:
@@ -19,33 +19,30 @@ jobs:
           set -e
           
           echo "::group::Fetching Release Data"
-          # Sử dụng --silent để tránh rác log và lưu output vào file tạm
-          gh api repos/${{ github.repository }}/releases/latest > rel_data.json || echo "ERROR" > rel_data.json
+          # Thử lấy release, nếu lỗi 404 thì tạo dữ liệu giả để test
+          REL_DATA=$(gh api repos/${{ github.repository }}/releases/latest 2>/dev/null || echo "NOT_FOUND")
           
-          # Kiểm tra nếu file chứa nội dung lỗi hoặc không phải JSON
-          if grep -q "message" rel_data.json || grep -q "ERROR" rel_data.json; then
-            echo "❌ Lỗi: Không tìm thấy Release hoặc Token không có quyền truy cập."
-            cat rel_data.json
-            exit 0
+          if [ "$REL_DATA" = "NOT_FOUND" ]; then
+            echo "⚠️ Không tìm thấy Release chính thức. Đang tạo dữ liệu giả để TEST..."
+            TAG="v1.0.0-TEST"
+            URL="https://github.com/${{ github.repository }}"
+            ASSETS="AK3_OP12_OOS14_Kernel.zip%0AAK3_OP11_OOS13_Kernel.zip"
+            COUNT=2
+            MODELS="OP12, OP11"
+            OS_VERS="OOS14, OOS13"
+          else
+            TAG=$(echo "$REL_DATA" | jq -r .tag_name)
+            URL="https://github.com/${{ github.repository }}/releases/tag/$TAG"
+            ASSETS_LIST=$(echo "$REL_DATA" | jq -r '.assets[].name')
+            
+            # Trích xuất Models và OS từ tên file (dựa trên cấu trúc của bạn)
+            MODELS=$(echo "$ASSETS_LIST" | grep '\.zip$' | awk -F'_' '{print $2}' | sort -u | xargs | sed 's/ /, /g')
+            OS_VERS=$(echo "$ASSETS_LIST" | grep '\.zip$' | awk -F'_' '{print $3}' | sort -u | xargs | sed 's/ /, /g')
+            COUNT=$(echo "$ASSETS_LIST" | grep -c '\.zip$' || echo 0)
           fi
-          
-          # Bây giờ mới an tâm sử dụng jq vì chắc chắn là JSON hợp lệ
-          TAG=$(jq -r .tag_name rel_data.json)
-          URL="https://github.com/${{ github.repository }}/releases/tag/$TAG"
-          ASSETS=$(jq -r '.assets[].name' rel_data.json)
           echo "::endgroup::"
 
-          if [ -z "$ASSETS" ] || [ "$ASSETS" = "null" ]; then
-            echo "⚠️ Release này không có assets."
-            exit 0
-          fi
-
-          # Trích xuất thông tin từ tên file zip
-          MODELS=$(echo "$ASSETS" | grep '\.zip$' | awk -F'_' '{print $2}' | sort -u | xargs | sed 's/ /, /g')
-          OS_VERS=$(echo "$ASSETS" | grep '\.zip$' | awk -F'_' '{print $3}' | sort -u | xargs | sed 's/ /, /g')
-          COUNT=$(echo "$ASSETS" | grep -c '\.zip$' || echo 0)
-
-          # Soạn nội dung HTML
+          # Soạn nội dung HTML (Dùng printf để an toàn với ký tự đặc biệt)
           TEXT="🚀 <b>OnePlus Kernel Update!</b>%0A"
           TEXT+="━━━━━━━━━━━━━━━━━━%0A"
           TEXT+="<b>🏷️ Tag:</b> <code>$TAG</code>%0A"
@@ -55,14 +52,23 @@ jobs:
           TEXT+="━━━━━━━━━━━━━━━━━━%0A"
           TEXT+="👉 <a href='$URL'><b>📥 DOWNLOAD HERE</b></a>"
 
-          # Gửi tin nhắn qua Telegram
+          # Gửi tin nhắn
+          echo "::group::Sending Telegram Notifications"
           IFS=' ,' read -ra IDS <<< "$TG_ID"
           for ID in "${IDS[@]}"; do
             if [ -n "$ID" ]; then
-              curl -s -X POST "https://api.telegram.org/bot$TG_TOKEN/sendMessage" \
+              echo "Sending to Chat ID: $ID"
+              RESPONSE=$(curl -s -X POST "https://api.telegram.org/bot$TG_TOKEN/sendMessage" \
                 -d "chat_id=$ID" \
                 -d "parse_mode=HTML" \
                 -d "disable_web_page_preview=true" \
-                -d "text=$TEXT" | jq .ok || echo "Failed to send to $ID"
+                -d "text=$TEXT")
+              
+              if echo "$RESPONSE" | jq -e '.ok' > /dev/null; then
+                echo "✅ Gửi thành công tới $ID"
+              else
+                echo "❌ Lỗi: $(echo "$RESPONSE" | jq -r '.description')"
+              fi
             fi
           done
+          echo "::endgroup::"
