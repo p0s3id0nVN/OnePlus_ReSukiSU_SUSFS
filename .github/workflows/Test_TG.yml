@@ -2,6 +2,9 @@ name: 📱 Telegram Notice
 
 on:
   workflow_dispatch:
+  # Bạn có thể thêm trigger 'release' để tự động gửi thông báo khi tạo release mới
+  # release:
+  #   types: [published]
 
 jobs:
   notify:
@@ -12,31 +15,64 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TG_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           TG_ID: ${{ secrets.TG_CHAT_ID }}
+        shell: bash
         run: |
-          # Lấy thông tin release mới nhất
-          REL_DATA=$(gh api repos/${{ github.repository }}/releases/latest)
+          set -e
+          
+          echo "::group::Fetching Release Data"
+          # Lấy thông tin release mới nhất, nếu lỗi (404) sẽ thông báo và thoát nhẹ nhàng
+          REL_DATA=$(gh api repos/${{ github.repository }}/releases/latest 2>/dev/null || echo "NULL")
+          
+          if [ "$REL_DATA" = "NULL" ]; then
+            echo "❌ Không tìm thấy bản Release nào trong repository này."
+            exit 0
+          fi
+          
           TAG=$(echo "$REL_DATA" | jq -r .tag_name)
           URL="https://github.com/${{ github.repository }}/releases/tag/$TAG"
-          
-          # Trích xuất Models và OS từ tên file zip
+          echo "Found Tag: $TAG"
+          echo "::endgroup::"
+
+          # Trích xuất Models và OS từ tên file zip (Ví dụ: AK3_OP12_OOS14_...)
           ASSETS=$(echo "$REL_DATA" | jq -r '.assets[].name')
+          
+          if [ -z "$ASSETS" ] || [ "$ASSETS" = "null" ]; then
+            echo "⚠️ Release này không có file đính kèm (assets)."
+            exit 0
+          fi
+
+          # Tối ưu hóa việc lọc Model và OS
           MODELS=$(echo "$ASSETS" | grep '\.zip$' | awk -F'_' '{print $2}' | sort -u | xargs | sed 's/ /, /g')
           OS_VERS=$(echo "$ASSETS" | grep '\.zip$' | awk -F'_' '{print $3}' | sort -u | xargs | sed 's/ /, /g')
           COUNT=$(echo "$ASSETS" | grep -c '\.zip$' || echo 0)
 
-          # Soạn nội dung (HTML)
+          # Soạn nội dung (HTML) - Sử dụng printf để tránh lỗi ký tự đặc biệt
           TEXT="🚀 <b>OnePlus Kernel Update!</b>%0A"
           TEXT+="━━━━━━━━━━━━━━━━━━%0A"
           TEXT+="<b>🏷️ Tag:</b> <code>$TAG</code>%0A"
-          TEXT+="<b>📦 Số lượng:</b> $COUNT zips%0A"
-          TEXT+="<b>📱 Model:</b> $MODELS%0A"
-          TEXT+="<b>💻 OS:</b> $OS_VERS%0A"
+          TEXT+="<b>📦 Số lượng:</b> $COUNT file zips%0A"
+          TEXT+="<b>📱 Model:</b> ${MODELS:-N/A}%0A"
+          TEXT+="<b>💻 OS:</b> ${OS_VERS:-N/A}%0A"
           TEXT+="━━━━━━━━━━━━━━━━━━%0A"
           TEXT+="👉 <a href='$URL'><b>📥 DOWNLOAD HERE</b></a>"
 
-          # Gửi tin nhắn qua Telegram API (hỗ trợ nhiều Chat ID)
+          # Gửi tin nhắn qua Telegram API (hỗ trợ nhiều Chat ID cách nhau bởi dấu phẩy hoặc khoảng trắng)
+          echo "::group::Sending Telegram Notifications"
           IFS=' ,' read -ra IDS <<< "$TG_ID"
           for ID in "${IDS[@]}"; do
-            curl -s -X POST "https://api.telegram.org/bot$TG_TOKEN/sendMessage" \
-              -d "chat_id=$ID&parse_mode=HTML&disable_web_page_preview=true&text=$TEXT" | jq .ok
+            if [ -n "$ID" ]; then
+              echo "Sending to Chat ID: $ID"
+              RESPONSE=$(curl -s -X POST "https://api.telegram.org/bot$TG_TOKEN/sendMessage" \
+                -d "chat_id=$ID" \
+                -d "parse_mode=HTML" \
+                -d "disable_web_page_preview=true" \
+                -d "text=$TEXT")
+              
+              if echo "$RESPONSE" | jq -e '.ok' > /dev/null; then
+                echo "✅ Success"
+              else
+                echo "❌ Failed: $(echo "$RESPONSE" | jq -r '.description')"
+              fi
+            fi
           done
+          echo "::endgroup::"
