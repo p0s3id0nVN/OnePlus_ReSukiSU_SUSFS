@@ -878,12 +878,34 @@ jobs:
               [[ "$ttl" == "true" ]] && features+=("🌐 TTL")
               [[ "$ip_set" == "true" ]] && features+=("🧱 IP_SET & IPv6 NAT")
               [[ "$unicode" == "true" ]] && features+=("🔧 Unicode Fix")
-              [[ "$ds" == "true" ]] && features+=("💻 Droidspaces Support)
+              [[ "$ds" == "true" ]] && features+=("💻 Droidspaces Support")
               [[ "$ntsync" == "true" ]] && features+=("🔃 NTSync Support")
+              
+              total=${#features[@]}
+              if [ $total -eq 0 ]; then
+                features_str="N/A"
+              else
+                features_str=""
+                count=0
+                
+                for item in "${features[@]}"; do
+                  count=$((count + 1))
+                  
+                  features_str+="$item"
+                  
+                  if [ $count -lt $total ]; then
+                    if [ $((count % 3)) -eq 0 ]; then
+                      features_str+="<br>"
+                    else
+                      features_str+="   "
+                    fi
+                  fi
+                done
+              fi
             fi
             
-            printf "| %-13s | %-10s | %-16s | %-30s |\n" \
-              "$model" "$os_ver" "$kernel_ver" "$features" >> release_notes.md
+            printf "| %-13s | %-10s | %-16s | %-48s |\n" \
+              "$model" "$os_ver" "$kernel_ver" "$features_str" >> release_notes.md
           done
           
           if [ ${#device_info[@]} -gt 0 ]; then
@@ -960,6 +982,7 @@ jobs:
           if [ "$ksu_type" == "ReSukiSU" ]; then
             cat << EOF >> release_notes.md
           - **ReSukiSU** - Kernel-based Android Root Solution,forked from sukisu
+          EOF
           elif [ "$ksu_type" == "KSUN" ]; then
             cat << EOF >> release_notes.md
           - **KernelSU Next** - Next-generation kernel-level root solution
@@ -1025,7 +1048,7 @@ jobs:
           - **ReSukiSU Manager**  
             → [Offical Documentation](https://resukisu.github.io/guide/install.html#Get-manager)
           EOF
-            elif [ "$ksu_type" == "KSUN" ]; then
+          elif [ "$ksu_type" == "KSUN" ]; then
             cat << EOF >> release_notes.md
           - **KernelSU Next Manager**  
             → [GitHub Release](https://github.com/KernelSU-Next/KernelSU-Next/releases)
