@@ -423,7 +423,19 @@ jobs:
       - name: 📊 Build plan summary
         run: |
           ksu_type="${{ inputs.ksu_type }}"
-          ksu_ref="${{ inputs.ksu_branch_or_hash }}"
+          ksu_hash="${{ inputs.ksu_branch_or_hash }}"
+
+          if [ "$ksu_type" == "KSUN" ]; then
+            if [ -z "$ksu_hash" ] || [ "$ksu_hash" == "main" ]; then
+              ksu_hash="dev"
+            fi
+          else
+            if [ -z "$ksu_hash" ] || [ "$ksu_hash" == "dev" ]; then
+              ksu_hash="main"
+            fi
+          fi
+
+          ksu_ref="$ksu_hash"
           
           ksu_display=""
           if [ "$ksu_type" = "KSUN" ] || [ "$ksu_type" = "ReSukiSU" ] || [ "$ksu_type" = "KSU" ]; then
