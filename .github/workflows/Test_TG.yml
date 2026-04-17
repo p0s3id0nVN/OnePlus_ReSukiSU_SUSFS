@@ -1,0 +1,42 @@
+name: 📱 Telegram Notice
+
+on:
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Notification
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TG_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_ID: ${{ secrets.TG_CHAT_ID }}
+        run: |
+          # Lấy thông tin release mới nhất
+          REL_DATA=$(gh api repos/${{ github.repository }}/releases/latest)
+          TAG=$(echo "$REL_DATA" | jq -r .tag_name)
+          URL="https://github.com/${{ github.repository }}/releases/tag/$TAG"
+          
+          # Trích xuất Models và OS từ tên file zip
+          ASSETS=$(echo "$REL_DATA" | jq -r '.assets[].name')
+          MODELS=$(echo "$ASSETS" | grep '\.zip$' | awk -F'_' '{print $2}' | sort -u | xargs | sed 's/ /, /g')
+          OS_VERS=$(echo "$ASSETS" | grep '\.zip$' | awk -F'_' '{print $3}' | sort -u | xargs | sed 's/ /, /g')
+          COUNT=$(echo "$ASSETS" | grep -c '\.zip$' || echo 0)
+
+          # Soạn nội dung (HTML)
+          TEXT="🚀 <b>OnePlus Kernel Update!</b>%0A"
+          TEXT+="━━━━━━━━━━━━━━━━━━%0A"
+          TEXT+="<b>🏷️ Tag:</b> <code>$TAG</code>%0A"
+          TEXT+="<b>📦 Số lượng:</b> $COUNT zips%0A"
+          TEXT+="<b>📱 Model:</b> $MODELS%0A"
+          TEXT+="<b>💻 OS:</b> $OS_VERS%0A"
+          TEXT+="━━━━━━━━━━━━━━━━━━%0A"
+          TEXT+="👉 <a href='$URL'><b>📥 DOWNLOAD HERE</b></a>"
+
+          # Gửi tin nhắn qua Telegram API (hỗ trợ nhiều Chat ID)
+          IFS=' ,' read -ra IDS <<< "$TG_ID"
+          for ID in "${IDS[@]}"; do
+            curl -s -X POST "https://api.telegram.org/bot$TG_TOKEN/sendMessage" \
+              -d "chat_id=$ID&parse_mode=HTML&disable_web_page_preview=true&text=$TEXT" | jq .ok
+          done
