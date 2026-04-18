@@ -1152,8 +1152,7 @@ jobs:
           gh release create "${{ env.NEW_TAG }}" \
             --repo "${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}" \
             --title "${{ env.RELEASE_NAME }}" \
-            --notes-file release_notes.md \
-            release_zips/*.zip
+            --notes-file release_notes.md
 
       - name: 📤 Tải lên động các tệp Release
         run: |
