@@ -715,7 +715,7 @@ runs:
         
         ANYKERNEL_BRANCH="gki-2.0"
         
-        if [ "${{ env.OP_SUSFS }}" = true ]; then
+        if [ "$OP_SUSFS" = "true" ]; then
           # Determine SUSFS branch/commit to use
           SUSFS_INPUT="${{ inputs.susfs_commit_hash_or_branch }}"
           
@@ -729,7 +729,7 @@ runs:
           )
           
           # Determine which SUSFS ref to use
-          KERNEL_KEY="${{ env.ANDROID_VER }}-${{ env.KERNEL_VER }}"
+          KERNEL_KEY="${ANDROID_VER}-${KERNEL_VER}"
           if [ -z "$SUSFS_INPUT" ]; then
             # use kernel-specific default
             SUSFS_BRANCH="${DEFAULT_SUSFS[$KERNEL_KEY]:-gki-android15-6.6}"
@@ -743,7 +743,7 @@ runs:
         
         echo "Using AnyKernel3 branch: $ANYKERNEL_BRANCH"
         
-        if [ "${{ env.OP_SUSFS }}" = true ]; then
+        if [ "$OP_SUSFS" = "true" ]; then
           echo "Using SUSFS branch/commit: $SUSFS_BRANCH"
         fi
         
@@ -822,7 +822,7 @@ runs:
         # retry_download "$PATCH_URL" "patch_linux"
         # chmod +x patch_linux
         
-        if [ "${{ env.OP_SUSFS }}" = true ]; then
+        if [ "$OP_SUSFS" = "true" ]; then
           retry_clone "https://gitlab.com/simonpunk/susfs4ksu.git" "master" 0
           
           cd susfs4ksu
@@ -886,22 +886,22 @@ runs:
         git submodule update --init --recursive
         cd KernelSU-Next/kernel
         
-        COMMITS_COUNT=$(/usr/bin/git rev-list --count HEAD)
+        COMMITS_COUNT=$(/usr/bin/git rev-list --count HEAD || echo 0)
         
-        if [ $COMMITS_COUNT -lt 2684 ]; then
+        if [ "${COMMITS_COUNT:-0}" -lt 2684 ]; then
           BASE_VERSION=10200
         else
           BASE_VERSION=30000
         fi
         
-        KSU_VERSION=$(expr $COMMITS_COUNT "+" $BASE_VERSION)
+        KSU_VERSION=$(expr "${COMMITS_COUNT:-0}" "+" $BASE_VERSION)
         sed -i "s/DKSU_VERSION=11998/DKSU_VERSION=${KSU_VERSION}/" Makefile
         
         if [ -f ksu.c ]; then
           sed -i 's/#if defined(CONFIG_STACKPROTECTOR) && (defined(CONFIG_ARM64) && !defined(CONFIG_STACKPROTECTOR_PER_TASK))/#if 0/' ksu.c
         fi
         
-        if [[ "$KSU_VERSION" -gt 33095 ]] && [[ "${{ env.KERNEL_VER }}" == "6.12" ]]; then
+        if [ "${KSU_VERSION:-0}" -gt 33095 ] && [ "$KERNEL_VER" = "6.12" ]; then
           sed -i 's|ccflags-y += -I$(KSU_KERNEL_DIR) -I$(KSU_KERNEL_DIR)/include|ccflags-y += -I$(KSU_KERNEL_DIR) -I$(KSU_KERNEL_DIR)/include -I$(KSU_KERNEL_DIR)/include/uapi|' Kbuild
           sed -i 's|$(src)|$(abspath $(src))|' Kbuild
           sed -i 's|$(srctree)/$(src)|$(abspath $(srctree)/$(src))|' Kbuild
@@ -947,7 +947,8 @@ runs:
         git submodule update --init --recursive
         cd KernelSU/kernel
         BASE_VERSION=30000
-        KSU_VERSION=$(expr $(/usr/bin/git rev-list --count HEAD) "+" $BASE_VERSION)
+        COMMITS_COUNT=$(/usr/bin/git rev-list --count HEAD || echo 0)
+        KSU_VERSION=$(expr "${COMMITS_COUNT:-0}" "+" $BASE_VERSION)
         sed -i "s/DKSU_VERSION=16/DKSU_VERSION=${KSU_VERSION}/" Makefile
         
         if [ -f ksu.c ]; then
@@ -990,7 +991,8 @@ runs:
         cd KernelSU
         
         BASE_VERSION=30700
-        KSU_VERSION=$(expr $(/usr/bin/git rev-list --count HEAD) "+" $BASE_VERSION)
+        COMMITS_COUNT=$(/usr/bin/git rev-list --count HEAD || echo 0)
+        KSU_VERSION=$(expr "${COMMITS_COUNT:-0}" "+" $BASE_VERSION)
         
         KSU_COMMIT_SHA=$(git rev-parse HEAD)
         echo "KSU_COMMIT_SHA=$KSU_COMMIT_SHA" >> $GITHUB_ENV
@@ -1095,11 +1097,11 @@ runs:
               patch -p1 --forward < "$KERNEL_PATCHES_FOLDER/next/susfs_fix_patches/$susfs_version/overwrite_hook_mode.patch"
               echo "Patching KSU_TOOLKIT Support for SusFS kernel!"
               patch -p1 --forward < "$KERNEL_PATCHES_FOLDER/next/susfs_fix_patches/$susfs_version/ksu_toolkit.patch"
-              if [ "$KSUVER" -le 33095 ]; then
+              if [ "${KSUVER:-0}" -le 33095 ]; then
               echo "Patching Multi-manager Support for SusFS kernel!"
               patch -p1 --forward < "$KERNEL_PATCHES_FOLDER/next/susfs_fix_patches/$susfs_version/multi_manager.patch"
               fi
-              if [ "$KSUVER" -ge 33068 ] && [ "$KSUVER" -lt 33070 ]; then
+              if [ "${KSUVER:-0}" -ge 33068 ] && [ "${KSUVER:-0}" -lt 33070 ]; then
                 echo "Patching Multi-manager sepolicy Support for SusFS kernel!"
                 patch -p1 --forward < "$KERNEL_PATCHES_FOLDER/next/susfs_fix_patches/$susfs_version/multi_sepolicy_fix.patch"
               fi
@@ -1115,7 +1117,7 @@ runs:
         esac
         
         cd "$COMMON_KERNEL_FOLDER"
-        if [ "${{ env.ANDROID_VER }}" = "android15" ] && [ "${{ env.KERNEL_VER }}" = "6.6" ]; then
+        if [ "$ANDROID_VER" = "android15" ] && [ "$KERNEL_VER" = "6.6" ]; then
           if ! grep -qxF '#include <trace/hooks/fs.h>' ./fs/namespace.c; then
             sed -i '/#include <trace\/hooks\/blk.h>/a #include <trace\/hooks\/fs.h>' ./fs/namespace.c
           fi
@@ -1123,7 +1125,7 @@ runs:
         
         # Fake kernel patch to fix failures
         fake_patched=0
-        if [ "${{ env.ANDROID_VER }}" = "android15" ] && [ "${{ env.KERNEL_VER }}" = "6.6" ]; then
+        if [ "$ANDROID_VER" = "android15" ] && [ "$KERNEL_VER" = "6.6" ]; then
           if ! grep -qxF $'\tunsigned int nr_subpages = __PAGE_SIZE / PAGE_SIZE;' ./fs/proc/task_mmu.c; then
             echo "nr_subpages Line not found. Fake Patching!"
             sed -i -e '/int ret = 0, copied = 0;/a \\tunsigned int nr_subpages \= __PAGE_SIZE \/ PAGE_SIZE;' -e '/int ret = 0, copied = 0;/a \\tpagemap_entry_t \*res = NULL;' ./fs/proc/task_mmu.c
@@ -1135,20 +1137,20 @@ runs:
             sed -i '/#include <linux\/cpufreq_times.h>/a #include <linux\/dma-buf.h>' ./fs/proc/base.c
           fi
         fi
-        if [ "${{ env.ANDROID_VER }}" = "android12" ] && [ "${{ env.KERNEL_VER }}" = "5.10" ]; then
+        if [ "$ANDROID_VER" = "android12" ] && [ "$KERNEL_VER" = "5.10" ]; then
           if ! grep -qxF $'\tif (!vma_pages(vma))' ./fs/proc/task_mmu.c; then
             echo "vma_pages Line not found. Fake Patching!"
             fake_patched=1
           fi
         fi
-        if [ "${{ env.ANDROID_VER }}" = "android13" ] && [ "${{ env.KERNEL_VER }}" = "5.15" ]; then
+        if [ "$ANDROID_VER" = "android13" ] && [ "$KERNEL_VER" = "5.15" ]; then
           if ! grep -qxF $'\tif (!vma_pages(vma))' ./fs/proc/task_mmu.c; then
             echo "vma_pages Line not found. Fake Patching!"
             fake_patched=1
           fi
         fi
         
-        if [ "${{ env.ANDROID_VER }}" = "android14" ] && [ "${{ env.KERNEL_VER }}" = "6.1" ]; then
+        if [ "$ANDROID_VER" = "android14" ] && [ "$KERNEL_VER" = "6.1" ]; then
           if ! grep -qxF $'\tif (!vma_pages(vma))' ./fs/proc/task_mmu.c; then
             echo "vma_pages Line not found. Fake Patching!"
             fake_patched=1
@@ -1160,29 +1162,29 @@ runs:
           fi
         fi
         
-        patch -p1 --forward < "$SUSFS_FOLDER/kernel_patches/50_add_susfs_in_${{ env.SUSFS_KERNEL_BRANCH }}.patch"
+        patch -p1 --forward < "$SUSFS_FOLDER/kernel_patches/50_add_susfs_in_${SUSFS_KERNEL_BRANCH}.patch"
         
         # Revert Fake kernel patch
         if [ "$fake_patched" = 1 ]; then
-          if [ "${{ env.ANDROID_VER }}" = "android15" ] && [ "${{ env.KERNEL_VER }}" = "6.6" ]; then
+          if [ "$ANDROID_VER" = "android15" ] && [ "$KERNEL_VER" = "6.6" ]; then
             if grep -qxF $'\tunsigned int nr_subpages = __PAGE_SIZE / PAGE_SIZE;' ./fs/proc/task_mmu.c; then
               echo "nr_subpages Line found. Revert Fake Patching!"
               sed -i -e '/unsigned int nr_subpages \= __PAGE_SIZE \/ PAGE_SIZE;/d' -e '/pagemap_entry_t \*res = NULL;/d' ./fs/proc/task_mmu.c
             fi
           fi
-          if [ "${{ env.ANDROID_VER }}" = "android12" ] && [ "${{ env.KERNEL_VER }}" = "5.10" ]; then
+          if [ "$ANDROID_VER" = "android12" ] && [ "$KERNEL_VER" = "5.10" ]; then
             if grep -qxF $'\t\t\tgoto show_pad;' ./fs/proc/task_mmu.c; then
               echo "vma_pages Line found. Revert Fake Patching!"
               sed -i -e 's/goto show_pad;/return 0;/' ./fs/proc/task_mmu.c
             fi
           fi
-          if [ "${{ env.ANDROID_VER }}" = "android13" ] && [ "${{ env.KERNEL_VER }}" = "5.15" ]; then
+          if [ "$ANDROID_VER" = "android13" ] && [ "$KERNEL_VER" = "5.15" ]; then
             if grep -qxF $'\t\t\tgoto show_pad;' ./fs/proc/task_mmu.c; then
               echo "vma_pages Line found. Revert Fake Patching!"
               sed -i -e 's/goto show_pad;/return 0;/' ./fs/proc/task_mmu.c
             fi
           fi
-          if [ "${{ env.ANDROID_VER }}" = "android14" ] && [ "${{ env.KERNEL_VER }}" = "6.1" ]; then
+          if [ "$ANDROID_VER" = "android14" ] && [ "$KERNEL_VER" = "6.1" ]; then
             if grep -qxF $'\t\t\tgoto show_pad;' ./fs/proc/task_mmu.c; then
               echo "vma_pages Line found. Revert Fake Patching!"
               sed -i -e 's/goto show_pad;/return 0;/' ./fs/proc/task_mmu.c
@@ -1248,7 +1250,7 @@ runs:
         set -euo pipefail
         echo "::group::Apply Other patches"
         cd "$COMMON_KERNEL_FOLDER"
-        KERNEL_VERSION="${{ env.KERNEL_VER }}"
+        KERNEL_VERSION="$KERNEL_VER"
         MIN_VERSION="5.16"
         if [ "$(printf '%s\n' "$KERNEL_VERSION" "$MIN_VERSION" | sort -V | head -n1)" = "$KERNEL_VERSION" ]; then
           echo "Patching ptrace!"
@@ -1375,7 +1377,7 @@ runs:
         set -euo pipefail
         echo "::group::Apply Unicode Fix patch"
         cd "$COMMON_KERNEL_FOLDER"
-        KERNEL_VERSION="${{ env.KERNEL_VER }}"
+        KERNEL_VERSION="$KERNEL_VER"
         MIN_VERSION="5.16"
         
         echo "Patching unicode!"
@@ -1428,7 +1430,7 @@ runs:
         set -euo pipefail
         echo "Add IP SET & IPv6_NAT Support"
         cd "$COMMON_KERNEL_FOLDER"
-        KERNEL_VERSION="${{ env.KERNEL_VER }}"
+        KERNEL_VERSION="$KERNEL_VER"
         
         if [[ "$KERNEL_VERSION" == "6.12" ]] || [[ "$OP_BRANCH" == wild/mt* ]]; then
           echo "::debug::Skipping CONFIG_BPF_STREAM_PARSER for $KERNEL_VERSION / $OP_BRANCH"
@@ -1562,11 +1564,11 @@ runs:
         set -euo pipefail
         echo "Save Build Metadata"
         cd "$ARTIFACTS_FOLDER"
-        echo "kernel_version=${{ env.KERNEL_FULL_VER }}" >> "$GITHUB_OUTPUT"
+        echo "kernel_version=$KERNEL_FULL_VER" >> "$GITHUB_OUTPUT"
         echo "ksu_version=${KSUVER:-unknown}" >> "$GITHUB_OUTPUT"
         echo "ksu_type=${{ inputs.ksu_type }}" >> "$GITHUB_OUTPUT"
         echo "build_timestamp=${EFFECTIVE_BUILD_TIMESTAMP:-unknown}" >> "$GITHUB_OUTPUT"
-        if [ "${{ env.OP_SUSFS }}" = true ]; then
+        if [ "$OP_SUSFS" = "true" ]; then
           echo "susfs_version=${SUSVER:-unknown}" >> "$GITHUB_OUTPUT"
         fi
 
@@ -1972,7 +1974,7 @@ runs:
           MODEL_OS="${OP_MODEL}_${OP_OS_VERSION}"
         fi
         
-        if [ "${{ env.OP_SUSFS }}" = true ]; then
+        if [ "$OP_SUSFS" = "true" ]; then
           ZIP_NAME="AK3_${MODEL_OS}_${{ inputs.ksu_type }}_${KERNEL_FULL_VER}_${KSUVER:-unknown}_SuSFS_${SUSVER:-unknown}.zip"
         else
           ZIP_NAME="AK3_${MODEL_OS}_${{ inputs.ksu_type }}_${KERNEL_FULL_VER}_${KSUVER:-unknown}.zip"
@@ -2017,14 +2019,14 @@ runs:
         SUSFS_SHA="${SUSFS_COMMIT_SHA:-unknown}"
         
         {
-          echo "Model: ${{ env.OP_MODEL }}"
-          echo "OS Version: ${{ env.OP_OS_VERSION }}"
-          echo "Android: ${{ env.ANDROID_VER }}"
-          echo "Kernel base: ${{ env.KERNEL_VER }}"
-          echo "Kernel full: ${{ env.KERNEL_FULL_VER }}"
-          echo "Kernel Uname: ${{ env.KERNEL_UNAME }}"
-          echo "Build User: ${{ env.BUILD_USER }}"
-          echo "Build Host: ${{ env.BUILD_HOST }}"
+          echo "Model: $OP_MODEL"
+          echo "OS Version: $OP_OS_VERSION"
+          echo "Android: $ANDROID_VER"
+          echo "Kernel base: $KERNEL_VER"
+          echo "Kernel full: $KERNEL_FULL_VER"
+          echo "Kernel Uname: $KERNEL_UNAME"
+          echo "Build User: $BUILD_USER"
+          echo "Build Host: $BUILD_HOST"
           if [ "${{ inputs.ksu_type }}" = "ReSukiSU" ]; then
             echo "ReSukiSU Version: ${KSUVER:-unknown}"
             echo "ReSukiSU commit SHA: ${KSU_SHA:-unknown}"
@@ -2035,21 +2037,21 @@ runs:
             echo "KSU Version: ${KSUVER:-unknown}"
             echo "KSU commit SHA: ${KSU_SHA:-unknown}"
           fi
-          if [ "${{ env.OP_SUSFS }}" = true ]; then
+          if [ "$OP_SUSFS" = "true" ]; then
             echo "SUSFS Version: ${SUSVER:-unknown}"
-            echo "SUSFS Branch: ${{ env.SUSFS_BRANCH_NAME }}"
+            echo "SUSFS Branch: $SUSFS_BRANCH_NAME"
             echo "SUSFS commit SHA: $SUSFS_SHA"
           fi
           echo "Optimization: ${{ inputs.optimize_level }}"
           echo "Clean Build: ${{ inputs.clean }}"
           echo ""
           echo "=== OnePlus Features ==="
-          echo "BBR: ${{ env.OP_BBR }}"
-          echo "BBG: ${{ env.OP_BBG }}"
-          echo "HMBIRD SCX: ${{ env.OP_HMBIRD }}"
-          echo "TTL: ${{ env.OP_TTL }}"
-          echo "IP_SET & IPv6 NAT: ${{ env.OP_IP_SET }}"
-          echo "Unicode Fix: ${{ env.OP_UNICODE }}"
+          echo "BBR: $OP_BBR"
+          echo "BBG: $OP_BBG"
+          echo "HMBIRD SCX: $OP_HMBIRD"
+          echo "TTL: $OP_TTL"
+          echo "IP_SET & IPv6 NAT: $OP_IP_SET"
+          echo "Unicode Fix: $OP_UNICODE"
           echo ""
           echo "Image SHA256: ${{ steps.collect_stats.outputs.image_sha256 }}"
           echo "AnyKernel3 ZIP SHA256: ${{ steps.create_zip.outputs.zip_sha256 }}"
@@ -2062,7 +2064,7 @@ runs:
           else
             echo "ccache: Disabled (clean build)"
           fi
-          echo "Artifact Name: ${{ env.ZIP_NAME }}"
+          echo "Artifact Name: $ZIP_NAME"
         } | tee summary.txt
         
         {
@@ -2070,12 +2072,12 @@ runs:
           echo ""
           echo "| Metric | Value |"
           echo "|--------|-------|"
-          echo "| **Model** | ${{ env.OP_MODEL }} |"
-          echo "| **OS Version** | ${{ env.OP_OS_VERSION }} |"
+          echo "| **Model** | $OP_MODEL |"
+          echo "| **OS Version** | $OP_OS_VERSION |"
           echo "| **Kernel Version** | ${{ steps.save_metadata.outputs.kernel_version }} |"
-          echo "| **Kernel Uname** | \`${{ env.KERNEL_UNAME }}\` |"
-          echo "| **Build User** | ${{ env.BUILD_USER }} |"
-          echo "| **Build Host** | ${{ env.BUILD_HOST }} |"
+          echo "| **Kernel Uname** | \`$KERNEL_UNAME\` |"
+          echo "| **Build User** | $BUILD_USER |"
+          echo "| **Build Host** | $BUILD_HOST |"
           if [ "${{ inputs.ksu_type }}" = "KSUN" ]; then
             echo "| **KSUN Version** | ${KSUVER:-unknown} |"
           elif [ "${{ inputs.ksu_type }}" = "ReSukiSU" ]; then
@@ -2096,9 +2098,9 @@ runs:
             echo "| **KSU Commit** | unknown |"
           fi
           
-          if [ "${{ env.OP_SUSFS }}" = true ]; then
+          if [ "$OP_SUSFS" = "true" ]; then
             echo "| **SUSFS Version** | ${SUSVER:-unknown} |"
-            echo "| **SUSFS Branch** | \`${{ env.SUSFS_BRANCH_NAME }}\` |"
+            echo "| **SUSFS Branch** | \`$SUSFS_BRANCH_NAME\` |"
             
             if [ "$SUSFS_SHA" != "unknown" ]; then
               echo "| **SUSFS Commit** | [\`${SUSFS_SHA:0:8}\`](https://gitlab.com/simonpunk/susfs4ksu/-/commit/$SUSFS_SHA) |"
@@ -2112,12 +2114,12 @@ runs:
           echo ""
           echo "| Feature | Status |"
           echo "|---------|--------|"
-          echo "| **BBR** | ${{ env.OP_BBR }} |"
-          echo "| **BBG** | ${{ env.OP_BBG }} |"
-          echo "| **HMBIRD SCX** | ${{ env.OP_HMBIRD }} |"
-          echo "| **TTL** | ${{ env.OP_TTL }} |"
-          echo "| **IP_SET & IPv6 NAT** | ${{ env.OP_IP_SET }} |"
-          echo "| **Unicode Fix** | ${{ env.OP_UNICODE }} |"
+          echo "| **BBR** | $OP_BBR |"
+          echo "| **BBG** | $OP_BBG |"
+          echo "| **HMBIRD SCX** | $OP_HMBIRD |"
+          echo "| **TTL** | $OP_TTL |"
+          echo "| **IP_SET & IPv6 NAT** | $OP_IP_SET |"
+          echo "| **Unicode Fix** | $OP_UNICODE |"
           
           echo ""
           echo "### 📊 Build Metrics"
@@ -2136,7 +2138,7 @@ runs:
           echo "| **Image SHA256** | \`${{ steps.collect_stats.outputs.image_sha256 }}\` |"
           echo "| **Warnings** | ${{ steps.collect_stats.outputs.warnings_count }} |"
           echo "| **Compiler** | \`${CLANG_VERSION:-unknown}\` |"
-          echo "| **Artifact Name** | \`${{ env.ZIP_NAME }}\` |"
+          echo "| **Artifact Name** | \`$ZIP_NAME\` |"
           echo "| **AnyKernel3 SHA256** | \`${{ steps.create_zip.outputs.zip_sha256 }}\` |"
         } >> "$GITHUB_STEP_SUMMARY"
 

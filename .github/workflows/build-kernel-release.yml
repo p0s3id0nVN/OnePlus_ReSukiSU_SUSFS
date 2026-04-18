@@ -37,7 +37,7 @@ on:
           - ReSukiSU
           - KSUN
           - KSU
-        default: ReSukiSU
+        default: KSUN
       ksu_branch_or_hash:
         description: 'KSU branch hoặc commit hash'
         type: string
@@ -175,6 +175,13 @@ jobs:
           filtered=$(jq -c "$jq_filter" matrix.json)
           count=$(jq 'length' <<<"$filtered")
           
+          filtered=$(echo "$filtered" | jq '
+            sort_by(
+              (.os_version | gsub("OOS"; "") | tonumber) * -1,
+              .model
+            )
+          ')
+          
           if [ "$count" -eq 0 ]; then
             echo "::error::No config files found for input '$input' after applying filters!"
             echo ""
@@ -183,7 +190,7 @@ jobs:
             exit 1
           fi
           
-          # Inject KSU type and hash into every device config
+          echo "$filtered" | jq '.' > matrix.json
           merged_matrix=$(jq -n --argjson devices "$filtered" --arg ksu_type "$ksu_type" --arg ksu_hash "$ksu_hash" '[ $devices[] as $dev | ($dev + {ksu_type: $ksu_type, ksu_hash: $ksu_hash}) ]')
           
           final_count=$(echo "$merged_matrix" | jq 'length')
@@ -406,6 +413,12 @@ jobs:
             --argjson hashes "$susfs_hashes_json" \
             '[.[] | . + {susfs_resolved_hash: ($hashes["\(.android_version)-\(.kernel_version)"] // "unknown")}]')
           
+          merged_matrix=$(echo "$merged_matrix" | jq '
+            sort_by(
+              (.os_version | gsub("OOS"; "") | tonumber? // 0) * -1,
+              .model
+            )
+          ')
           # Recalculate wrapped with updated matrix and write output
           wrapped=$(jq -n --argjson items "$merged_matrix" '{ include: $items }')
           echo "matrix=$(jq -c . <<< "$wrapped")" >> "$GITHUB_OUTPUT"
