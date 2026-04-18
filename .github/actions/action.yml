@@ -1983,14 +1983,14 @@ runs:
         SUSFS_SHA="${SUSFS_COMMIT_SHA:-unknown}"
         
         {
-          echo "Model: $OP_MODEL"
-          echo "OS Version: $OP_OS_VERSION"
-          echo "Android: $ANDROID_VER"
-          echo "Kernel base: $KERNEL_VER"
-          echo "Kernel full: $KERNEL_FULL_VER"
-          echo "Kernel Uname: $KERNEL_UNAME"
-          echo "Build User: $BUILD_USER"
-          echo "Build Host: $BUILD_HOST"
+          echo "Model: ${{ env.OP_MODEL }}"
+          echo "OS Version: ${{ env.OP_OS_VERSION }}"
+          echo "Android: ${{ env.ANDROID_VER }}"
+          echo "Kernel base: ${{ env.KERNEL_VER }}"
+          echo "Kernel full: ${{ env.KERNEL_FULL_VER }}"
+          echo "Kernel Uname: ${{ env.KERNEL_UNAME }}"
+          echo "Build User: ${{ env.BUILD_USER }}"
+          echo "Build Host: ${{ env.BUILD_HOST }}"
           if [ "${{ inputs.ksu_type }}" = "ReSukiSU" ]; then
             echo "ReSukiSU Version: ${KSUVER:-unknown}"
             echo "ReSukiSU commit SHA: ${KSU_SHA:-unknown}"
@@ -2001,21 +2001,21 @@ runs:
             echo "KSU Version: ${KSUVER:-unknown}"
             echo "KSU commit SHA: ${KSU_SHA:-unknown}"
           fi
-          if [ "$OP_SUSFS" = "true" ]; then
+          if [ "${{ env.OP_SUSFS }}" = true ]; then
             echo "SUSFS Version: ${SUSVER:-unknown}"
-            echo "SUSFS Branch: $SUSFS_BRANCH_NAME"
+            echo "SUSFS Branch: ${{ env.SUSFS_BRANCH_NAME }}"
             echo "SUSFS commit SHA: $SUSFS_SHA"
           fi
           echo "Optimization: ${{ inputs.optimize_level }}"
           echo "Clean Build: ${{ inputs.clean }}"
           echo ""
           echo "=== OnePlus Features ==="
-          echo "BBR: $OP_BBR"
-          echo "BBG: $OP_BBG"
-          echo "HMBIRD SCX: $OP_HMBIRD"
-          echo "TTL: $OP_TTL"
-          echo "IP_SET & IPv6 NAT: $OP_IP_SET"
-          echo "Unicode Fix: $OP_UNICODE"
+          echo "BBR: ${{ env.OP_BBR }}"
+          echo "BBG: ${{ env.OP_BBG }}"
+          echo "HMBIRD SCX: ${{ env.OP_HMBIRD }}"
+          echo "TTL: ${{ env.OP_TTL }}"
+          echo "IP_SET & IPv6 NAT: ${{ env.OP_IP_SET }}"
+          echo "Unicode Fix: ${{ env.OP_UNICODE }}"
           echo ""
           echo "Image SHA256: ${{ steps.collect_stats.outputs.image_sha256 }}"
           echo "AnyKernel3 ZIP SHA256: ${{ steps.create_zip.outputs.zip_sha256 }}"
@@ -2028,7 +2028,7 @@ runs:
           else
             echo "ccache: Disabled (clean build)"
           fi
-          echo "Artifact Name: $ZIP_NAME"
+          echo "Artifact Name: ${{ env.ZIP_NAME }}"
         } | tee summary.txt
         
         {
@@ -2036,14 +2036,12 @@ runs:
           echo ""
           echo "| Metric | Value |"
           echo "|--------|-------|"
-          echo "| **Model** | $OP_MODEL |"
-          echo "| **OS Version** | $OP_OS_VERSION |"
+          echo "| **Model** | ${{ env.OP_MODEL }} |"
+          echo "| **OS Version** | ${{ env.OP_OS_VERSION }} |"
           echo "| **Kernel Version** | ${{ steps.save_metadata.outputs.kernel_version }} |"
-          echo "| **Kernel Uname** | \`$KERNEL_UNAME\` |"
-          echo "| **Build User** | $BUILD_USER |"
-          echo "| **Build Host** | $BUILD_HOST |"
-          if [ "${{ inputs.ksu_type }}" = "KSUN" ]; then
-            echo "| **KSUN Version** | ${KSUVER:-unknown} |"
+          echo "| **Kernel Uname** | \`${{ env.KERNEL_UNAME }}\` |"
+          echo "| **Build User** | ${{ env.BUILD_USER }} |"
+          echo "| **Build Host** | ${{ env.BUILD_HOST }} |"
           elif [ "${{ inputs.ksu_type }}" = "ReSukiSU" ]; then
             echo "| **ReSukiSU Version** | ${KSUVER:-unknown} |"
           else
@@ -2062,9 +2060,9 @@ runs:
             echo "| **KSU Commit** | unknown |"
           fi
           
-          if [ "$OP_SUSFS" = "true" ]; then
+          if [ "${{ env.OP_SUSFS }}" = true ]; then
             echo "| **SUSFS Version** | ${SUSVER:-unknown} |"
-            echo "| **SUSFS Branch** | \`$SUSFS_BRANCH_NAME\` |"
+            echo "| **SUSFS Branch** | \`${{ env.SUSFS_BRANCH_NAME }}\` |"
             
             if [ "$SUSFS_SHA" != "unknown" ]; then
               echo "| **SUSFS Commit** | [\`${SUSFS_SHA:0:8}\`](https://gitlab.com/simonpunk/susfs4ksu/-/commit/$SUSFS_SHA) |"
@@ -2078,12 +2076,12 @@ runs:
           echo ""
           echo "| Feature | Status |"
           echo "|---------|--------|"
-          echo "| **BBR** | $OP_BBR |"
-          echo "| **BBG** | $OP_BBG |"
-          echo "| **HMBIRD SCX** | $OP_HMBIRD |"
-          echo "| **TTL** | $OP_TTL |"
-          echo "| **IP_SET & IPv6 NAT** | $OP_IP_SET |"
-          echo "| **Unicode Fix** | $OP_UNICODE |"
+          echo "| **BBR** | ${{ env.OP_BBR }} |"
+          echo "| **BBG** | ${{ env.OP_BBG }} |"
+          echo "| **HMBIRD SCX** | ${{ env.OP_HMBIRD }} |"
+          echo "| **TTL** | ${{ env.OP_TTL }} |"
+          echo "| **IP_SET & IPv6 NAT** | ${{ env.OP_IP_SET }} |"
+          echo "| **Unicode Fix** | ${{ env.OP_UNICODE }} |"
           
           echo ""
           echo "### 📊 Build Metrics"
@@ -2102,7 +2100,7 @@ runs:
           echo "| **Image SHA256** | \`${{ steps.collect_stats.outputs.image_sha256 }}\` |"
           echo "| **Warnings** | ${{ steps.collect_stats.outputs.warnings_count }} |"
           echo "| **Compiler** | \`${CLANG_VERSION:-unknown}\` |"
-          echo "| **Artifact Name** | \`$ZIP_NAME\` |"
+          echo "| **Artifact Name** | \`${{ env.ZIP_NAME }}\` |"
           echo "| **AnyKernel3 SHA256** | \`${{ steps.create_zip.outputs.zip_sha256 }}\` |"
         } >> "$GITHUB_STEP_SUMMARY"
 
