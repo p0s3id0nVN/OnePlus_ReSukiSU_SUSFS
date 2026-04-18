@@ -1,5 +1,5 @@
 # 📱 OnePlusOSS Kernel Tracker
-> **Last Update:** Sat Apr 18 04:20:00 UTC 2026 (UTC)
+> **Last Update:** Sat Apr 18 07:07:32 UTC 2026 (UTC)
 Daily automated report for OnePlus Kernel branches.
 ### 📓 Kernel Manifests Report
 <details><summary><b>kernel_manifest</b></summary>
@@ -182,6 +182,29 @@ Daily automated report for OnePlus Kernel branches.
 
 
 ### 🛠 Kernel Trees Report
+<details><summary><b>android_kernel_oneplus_mt6789</b></summary>
+
+#### Branch: `oneplus/mt6789_v_15.0.1_pad_lite` ✅
+* **Kernel Version:** `5.10.226`
+* **Commit SHA:** `9845d4a`
+* **Message:** Synchronize code for OnePlus OPD2480_15.0.1.503(EX01)
+---
+#### Branch: `oneplus/mt6789_u_14.0.0_onepluspad_go` ✅
+* **Kernel Version:** `5.10.209`
+* **Commit SHA:** `a219842`
+* **Message:** Synchronize code for OnePlus OPD2304_14.0.0.809(EX01) OPD2305_14.0.0.809(EX01)
+---
+#### Branch: `oneplus/mt6789_t_13.2.0_onepluspad_go` ✅
+* **Kernel Version:** `5.10.168`
+* **Commit SHA:** `dc7f73a`
+* **Message:** Synchronize code for OnePlus OPD2304_13.2.0.420(EX01)
+---
+#### Branch: `oneplus/mt6789_b_16.0_pad_lite` 🆕
+* **Kernel Version:** `4.20.0`
+* **Commit SHA:** `e154ab6`
+* **Message:** Input: elan_i2c - add id for touchpad found in Lenovo s21e-20
+---
+</details>
 <details><summary><b>android_kernel_oneplus_mt6991</b></summary>
 
 #### Branch: `oneplus/mt6991_v_15.0.2_ace5_ultra` ✅
@@ -194,7 +217,7 @@ Daily automated report for OnePlus Kernel branches.
 * **Commit SHA:** `803322b`
 * **Message:** Synchronize code for OnePlus OPD2508_16.0.0.204(CN01)
 ---
-#### Branch: `oneplus/mt6991_b_16.0.0_oneplus_ace5_ultra` 🔄 Updated
+#### Branch: `oneplus/mt6991_b_16.0.0_oneplus_ace5_ultra` ✅
 * **Kernel Version:** `6.6.89`
 * **Commit SHA:** `4953f41`
 * **Message:** Synchronize code for OnePlus PLC110_16.0.5.700(CN01)
@@ -207,7 +230,7 @@ Daily automated report for OnePlus Kernel branches.
 * **Commit SHA:** `b1ea2c8`
 * **Message:** Synchronize code for OnePlus PLF110_15.0.2.501(CN01)
 ---
-#### Branch: `oneplus/mt6989_b_16.0.0_ace5_race` 🔄 Updated
+#### Branch: `oneplus/mt6989_b_16.0.0_ace5_race` ✅
 * **Kernel Version:** `6.1.134`
 * **Commit SHA:** `770ca1e`
 * **Message:** Synchronize code for OnePlus PLF110_16.0.5.701(CN01)
@@ -225,7 +248,7 @@ Daily automated report for OnePlus Kernel branches.
 * **Commit SHA:** `bdf1628`
 * **Message:** Synchronize code for OnePlus OPD2407_15.0.0.1351(CN01)
 ---
-#### Branch: `oneplus/mt6897_b_16.0.0_oneplus_pad` 🔄 Updated
+#### Branch: `oneplus/mt6897_b_16.0.0_oneplus_pad` ✅
 * **Kernel Version:** `6.1.134`
 * **Commit SHA:** `c90a943`
 * **Message:** Synchronize code for OnePlus OPD2407_16.0.5.700(CN01)
@@ -288,7 +311,7 @@ Daily automated report for OnePlus Kernel branches.
 * **Commit SHA:** `ff51a39`
 * **Message:** Synchronize codes for OnePlus Ace 2V PHP110domestic_11_A.05 OxygenOS 13.0
 ---
-#### Branch: `oneplus/mt6983_b_16.0.0_oneplus_pad` 🔄 Updated
+#### Branch: `oneplus/mt6983_b_16.0.0_oneplus_pad` ✅
 * **Kernel Version:** `5.10.236`
 * **Commit SHA:** `41784ad`
 * **Message:** Synchronize code for OnePlus OPD2203_16.0.5.700(EX01)
@@ -1241,24 +1264,6 @@ Daily automated report for OnePlus Kernel branches.
 * **Kernel Version:** `5.10.149`
 * **Commit SHA:** `b2ed059`
 * **Message:** Synchronize code for oneplus PGKM10_13.1.0.9
----
-</details>
-<details><summary><b>android_kernel_oneplus_mt6789</b></summary>
-
-#### Branch: `oneplus/mt6789_v_15.0.1_pad_lite` ✅
-* **Kernel Version:** `5.10.226`
-* **Commit SHA:** `9845d4a`
-* **Message:** Synchronize code for OnePlus OPD2480_15.0.1.503(EX01)
----
-#### Branch: `oneplus/mt6789_u_14.0.0_onepluspad_go` ✅
-* **Kernel Version:** `5.10.209`
-* **Commit SHA:** `a219842`
-* **Message:** Synchronize code for OnePlus OPD2304_14.0.0.809(EX01) OPD2305_14.0.0.809(EX01)
----
-#### Branch: `oneplus/mt6789_t_13.2.0_onepluspad_go` ✅
-* **Kernel Version:** `5.10.168`
-* **Commit SHA:** `dc7f73a`
-* **Message:** Synchronize code for OnePlus OPD2304_13.2.0.420(EX01)
 ---
 </details>
 <details><summary><b>android_kernel_oneplus_mt6833</b></summary>
