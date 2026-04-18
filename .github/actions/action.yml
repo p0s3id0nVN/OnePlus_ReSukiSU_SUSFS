@@ -1528,11 +1528,11 @@ runs:
         set -euo pipefail
         echo "Save Build Metadata"
         cd "$ARTIFACTS_FOLDER"
-        echo "kernel_version=$KERNEL_FULL_VER" >> "$GITHUB_OUTPUT"
+        echo "kernel_version=${{ env.KERNEL_FULL_VER }}" >> "$GITHUB_OUTPUT"
         echo "ksu_version=${KSUVER:-unknown}" >> "$GITHUB_OUTPUT"
         echo "ksu_type=${{ inputs.ksu_type }}" >> "$GITHUB_OUTPUT"
         echo "build_timestamp=${EFFECTIVE_BUILD_TIMESTAMP:-unknown}" >> "$GITHUB_OUTPUT"
-        if [ "$OP_SUSFS" = "true" ]; then
+        if [ "${{ env.OP_SUSFS }}" = true ]; then
           echo "susfs_version=${SUSVER:-unknown}" >> "$GITHUB_OUTPUT"
         fi
 
