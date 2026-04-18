@@ -21,7 +21,7 @@
 </table>
 
  - If your device is not in list, please select the device which is most similar and matches the kernel version (androidXX-YY.ZZ.AAA). AAA must be atleast same or greater. XX-YY.ZZ must match exactly. More Information on this can be read @<a href="https://kernelsu.org/guide/installation.html#kmi">KernelSU.org</a>.
- - Thanks to our community users at <a href="https://t.me/WildKernels">WildKernels</a> for helping us compile the list.
+ - Thanks to our community users at <a href="https://t.me/WildKernelsTG">WildKernels</a> for helping us compile the list.
  - We request more users come forward help us keep the list updated. 
  - I'm sure more devices from other brands are also supported.
 <table>
@@ -59,5 +59,10 @@
 		<td align="center"> Poco F8 Ultra </td>
 		<td align="center"> OnePlus 15 </td>
 		<td align="center"> android16-6.12.23 </td>
+	</tr>
+	<tr> 
+		<td align="center"> MI 12T Pro </td>
+		<td align="center"> OnePlus 10T</td>
+		<td align="center"> android12-5.10.226<br>android12-5.10.236</td>
 	</tr>
 </table>
