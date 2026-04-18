@@ -864,10 +864,10 @@ jobs:
               [[ "$bbr" == "true" ]] && features+=("🚀 BBR")
               [[ "$bbg" == "true" ]] && features+=("🛡️ BBG")
               [[ "$ttl" == "true" ]] && features+=("🌐 TTL")
-              [[ "$ip_set" == "true" ]] && features+=("🧱 IP_SET & IPv6 NAT")
-              [[ "$unicode" == "true" ]] && features+=("🔧 Unicode Fix")
-              [[ "$ds" == "true" ]] && features+=("💻 Droidspaces Support)
-              [[ "$ntsync" == "true" ]] && features+=("🔃 NTSync Support")
+              [[ "$ip_set" == "true" ]] && features+="🧱 IP_SET & IPv6 NAT "
+              [[ "$unicode" == "true" ]] && features+="🔧 Unicode Fix "
+              [[ "$ds" == "true" ]] && features+="💻 Droidspaces Support "
+              [[ "$ntsync" == "true" ]] && features+="🔃 NTSync Support "
             fi
             
             printf "| %-13s | %-10s | %-16s | %-30s |\n" \
@@ -948,6 +948,7 @@ jobs:
           if [ "$ksu_type" == "ReSukiSU" ]; then
             cat << EOF >> release_notes.md
           - **ReSukiSU** - Kernel-based Android Root Solution,forked from sukisu
+          EOF
           elif [ "$ksu_type" == "KSUN" ]; then
             cat << EOF >> release_notes.md
           - **KernelSU Next** - Next-generation kernel-level root solution
@@ -960,7 +961,7 @@ jobs:
           cat << EOF >> release_notes.md
           - **SUSFS $SUSFS_BASE_VERSION** - Advanced hiding and security features
           EOF
-          elif [ "$ksu_type" == "KSUN" ] && [ "${ksu_ver_global:-0}" -lt 12884 ]; then
+          if [ "$ksu_type" == "KSUN" ] && [ "${ksu_ver_global:-0}" -lt 12884 ]; then
             cat << EOF >> release_notes.md
           - **Magic Mount Support** - Seamless file system modifications
           EOF
