@@ -1045,19 +1045,77 @@ runs:
         
         case "$susfs_version" in
           "v1.5.8")
-            if [ "${{ inputs.ksu_type }}" = "KSU" ]; then
-              cd "$KSU_FOLDER"
+            if [ "${{ inputs.ksu_type }}" = "KSUN" ]; then
               patch -p1 --forward --fuzz=3 < "$SUSFS_FOLDER/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch" || true
+              patch -p1 --forward --fuzz=3 < "$KERNEL_PATCHES_FOLDER/next/susfs_fix_patches/$susfs_version/fix_apk_sign.c.patch"
+              patch -p1 --forward --fuzz=3 < "$KERNEL_PATCHES_FOLDER/next/susfs_fix_patches/$susfs_version/fix_core_hook.c.patch"
+              patch -p1 --forward --fuzz=3 < "$KERNEL_PATCHES_FOLDER/next/susfs_fix_patches/$susfs_version/fix_selinux.c.patch"
+              patch -p1 --forward --fuzz=3 < "$KERNEL_PATCHES_FOLDER/next/susfs_fix_patches/$susfs_version/fix_ksud.c.patch"
             else
-              echo "ℹ️ Skipping KernelSU folder patch for ReSukiSU"
+              cd "$KSU_FOLDER"
+              patch -p1 --forward --fuzz=3 < "$SUSFS_FOLDER/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch"
             fi
             ;;
-          "v1.5.9"|"v1.5.10"|"v1.5.11"|"v1.5.12"|"v2.0.0"|"v2.1.0")
-            if [ "${{ inputs.ksu_type }}" = "KSU" ]; then
+          "v1.5.9"|"v1.5.10"|"v1.5.11"|"v1.5.12")
+            if [ "${{ inputs.ksu_type }}" = "KSUN" ]; then
+              cd "$KSUN_FOLDER"
+              patch -p1 --forward < "$SUSFS_FOLDER/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch" || true
+              for file in $(find ./kernel -maxdepth 2 -name "*.rej" -printf "%f\n" | cut -d'.' -f1); do
+                echo "Patching file: $file.c with fix_$file.c.patch"
+                patch -p1 --forward < "$KERNEL_PATCHES_FOLDER/next/susfs_fix_patches/$susfs_version/fix_$file.c.patch"
+              done
+              patch -p1 --forward < "$KERNEL_PATCHES_FOLDER/next/susfs_fix_patches/$susfs_version/fix_kernel_compat.c.patch"
+            else
+              cd "$KSU_FOLDER"
+              patch -p1 --forward < "$SUSFS_FOLDER/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch"
+            fi
+            ;;
+          "v2.0.0")
+            if [ "${{ inputs.ksu_type }}" = "KSUN" ]; then
+              cd "$KSUN_FOLDER"
+              patch -p1 --forward < "$SUSFS_FOLDER/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch" || true
+              for file in $(find ./kernel -maxdepth 2 -name "*.rej" -exec basename {} .rej \;); do
+                echo "Patching file: $file with fix_$file.patch"
+                patch -p1 --forward < "$KERNEL_PATCHES_FOLDER/next/susfs_fix_patches/$susfs_version/fix_$file.patch"
+              done
+              echo "Patching Hook Mode!"
+              patch -p1 --forward < "$KERNEL_PATCHES_FOLDER/next/susfs_fix_patches/$susfs_version/overwrite_hook_mode.patch"
+              echo "Patching KSU_TOOLKIT Support for SusFS kernel!"
+              patch -p1 --forward < "$KERNEL_PATCHES_FOLDER/next/susfs_fix_patches/$susfs_version/ksu_toolkit.patch"
+              echo "Patching Multi-manager Support for SusFS kernel!"
+              patch -p1 --forward < "$KERNEL_PATCHES_FOLDER/next/susfs_fix_patches/$susfs_version/multi_manager.patch"
+              if [ "$KSUVER" -ge 33068 ] && [ "$KSUVER" -lt 33070 ]; then
+                echo "Patching Multi-manager sepolicy Support for SusFS kernel!"
+                patch -p1 --forward < "$KERNEL_PATCHES_FOLDER/next/susfs_fix_patches/$susfs_version/multi_sepolicy_fix.patch"
+              fi
+            else
               cd "$KSU_FOLDER"
               patch -p1 --forward < "$SUSFS_FOLDER/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch" || true
+            fi
+            ;;
+          "v2.1.0")
+            if [ "${{ inputs.ksu_type }}" = "KSUN" ]; then
+              cd "$KSUN_FOLDER"
+              patch -p1 --forward < "$SUSFS_FOLDER/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch" || true
+              for file in $(find ./kernel -maxdepth 2 -name "*.rej" -exec basename {} .rej \;); do
+                echo "Patching file: $file with fix_$file.patch"
+                patch -p1 --forward < "$KERNEL_PATCHES_FOLDER/next/susfs_fix_patches/$susfs_version/fix_$file.patch"
+              done
+              echo "Patching Hook Mode!"
+              patch -p1 --forward < "$KERNEL_PATCHES_FOLDER/next/susfs_fix_patches/$susfs_version/overwrite_hook_mode.patch"
+              echo "Patching KSU_TOOLKIT Support for SusFS kernel!"
+              patch -p1 --forward < "$KERNEL_PATCHES_FOLDER/next/susfs_fix_patches/$susfs_version/ksu_toolkit.patch"
+              if [ "$KSUVER" -le 33095 ]; then
+              echo "Patching Multi-manager Support for SusFS kernel!"
+              patch -p1 --forward < "$KERNEL_PATCHES_FOLDER/next/susfs_fix_patches/$susfs_version/multi_manager.patch"
+              fi
+              if [ "$KSUVER" -ge 33068 ] && [ "$KSUVER" -lt 33070 ]; then
+                echo "Patching Multi-manager sepolicy Support for SusFS kernel!"
+                patch -p1 --forward < "$KERNEL_PATCHES_FOLDER/next/susfs_fix_patches/$susfs_version/multi_sepolicy_fix.patch"
+              fi
             else
-              echo "ℹ️ Skipping KernelSU folder patch for ReSukiSU"
+              cd "$KSU_FOLDER"
+              patch -p1 --forward < "$SUSFS_FOLDER/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch" || true
             fi
             ;;
           *)
@@ -1925,9 +1983,9 @@ runs:
         fi
         
         if [ "${{ env.OP_SUSFS }}" = true ]; then
-          ZIP_NAME="AK3_${MODEL_OS}_${KERNEL_FULL_VER}_${{ inputs.ksu_type }}_${KSUVER:-unknown}_SuSFS_${SUSVER:-unknown}.zip"
+          ZIP_NAME="AK3_${MODEL_OS}_${{ inputs.ksu_type }}_${KERNEL_FULL_VER}_${KSUVER:-unknown}_SuSFS_${SUSVER:-unknown}.zip"
         else
-          ZIP_NAME="AK3_${MODEL_OS}_${KERNEL_FULL_VER}_${{ inputs.ksu_type }}_${KSUVER:-unknown}.zip"
+          ZIP_NAME="AK3_${MODEL_OS}_${{ inputs.ksu_type }}_${KERNEL_FULL_VER}_${KSUVER:-unknown}.zip"
         fi
         mkdir -p "$ARTIFACTS_FOLDER"
         
