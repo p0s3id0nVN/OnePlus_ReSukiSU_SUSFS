@@ -63,11 +63,7 @@ on:
       android13-5_15_susfs_branch_or_commit:
         description: 'Nhập Branch hoặc Commit hash cho android13-5.15'
         type: string
-        default: ''      
-      android13-5_15_susfs_branch_or_commit:
-        description: 'Nhập Branch hoặc Commit hash cho android13-5.15'
-        type: string
-        default: ''      
+        default: ''        
       android14-6_1_susfs_branch_or_commit:
         description: 'Nhập Branch hoặc Commit hash cho android14-6.1'
         type: string
