@@ -1147,7 +1147,7 @@ jobs:
           cat release_notes.md
       
          
-      - name: 🚀 Tạo GitHub Release
+      - name: 🚀 Create GitHub Release
         run: |
           gh release create "${{ env.NEW_TAG }}" \
             --repo "${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}" \
@@ -1155,7 +1155,7 @@ jobs:
             --notes-file release_notes.md \
             --draft
 
-      - name: 📤 Tải lên động các tệp Release
+      - name: 📤 Upload Release Assets Dynamically
         run: |
           for file in ./downloaded-artifacts/*.zip; do
             if [ -f "$file" ]; then
@@ -1188,7 +1188,7 @@ jobs:
             fi
           done
 
-      - name: 📱 Gửi thông báo chi tiết qua Telegram
+      - name: 📱 Send Detailed Telegram Notification
         if: success()
         env:
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
@@ -1198,7 +1198,7 @@ jobs:
           echo "::group::Telegram Notification"
           
           if [ -z "$TG_BOT_TOKEN" ] || [ -z "$TG_CHAT_ID" ]; then
-            echo "⚠️ Chưa cấu hình các secret của Telegram. Đang bỏ qua."
+            echo "⚠️ Telegram secrets not configured. Skipping."
             exit 0
           fi
           
@@ -1218,7 +1218,7 @@ jobs:
 
           # Dùng Heredoc để gán chuỗi an toàn, tránh lỗi vỡ cú pháp do ký tự < >
           MSG_TEXT=$(cat <<EOF
-          🚀 <b>OKI Kernel Build thành công!</b>
+          🚀 <b>OnePlus Kernel Build Successful!</b>
           ━━━━━━━━━━━━━━━━━━
           <b>🏷️ Release Tag:</b> <code>${{ env.NEW_TAG }}</code>
           <b>🔐 Root Solution:</b> ${{ inputs.ksu_type }} (v${KSU_VERS})
@@ -1228,29 +1228,23 @@ jobs:
           <b>📦 Total Packages:</b> ${ZIP_COUNT} zips
           <b>📱 Supported Models:</b> ${MODELS}
           <b>💻 Supported OS:</b> ${OS_VERS}
-
+          
           ━━━━━━━━━━━━━━━━━━
-          👉 <a href="${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ env.NEW_TAG }}"><b>📥 TẢI VỀ TẠI ĐÂY </b></a>
+          👉 <a href="${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ env.NEW_TAG }}"><b>📥 GET YOUR KERNEL HERE</b></a>
           📢 <a href="https://t.me/+xuaucg-mba02NDY1"><b>JOIN TELEGRAM CHANNEL</b></a>
           EOF
-                    )
-                    
-                    IFS=' ,' read -r -a CHAT_IDS <<< "$TG_CHAT_ID"
-                    for ID in "${CHAT_IDS[@]}"; do
-                      [ -z "$ID" ] && continue
-                      
-                      # Sử dụng jq để tạo JSON payload an toàn (tự động escape các ký tự đặc biệt)
-                      PAYLOAD=$(jq -n --arg chat_id "$ID" --arg text "$MSG_TEXT" \
-                        '{chat_id: $chat_id, parse_mode: "HTML", disable_web_page_preview: true, text: $text}')
-                      
-                      RESPONSE=$(curl -s -X POST "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
-                        -H "Content-Type: application/json" \
-                        -d "$PAYLOAD")
-                      
-                      if echo "$RESPONSE" | jq -e '.ok' > /dev/null; then
-                        echo "  ✅ Đã gửi thông báo thành công tới $ID"
-                      else
-                        echo "  ❌ Lỗi khi gửi tới $ID: $(echo "$RESPONSE" | jq -r '.description')"
-                      fi
-                    done
-                    echo "::endgroup::"
+          )
+          
+          IFS=' ,' read -r -a CHAT_IDS <<< "$TG_CHAT_ID"
+          for ID in "${CHAT_IDS[@]}"; do
+            [ -z "$ID" ] && continue
+            
+            # Sử dụng jq để tạo JSON payload an toàn (tự động escape các ký tự đặc biệt)
+            PAYLOAD=$(jq -n --arg chat_id "$ID" --arg text "$MSG_TEXT" \
+              '{chat_id: $chat_id, parse_mode: "HTML", disable_web_page_preview: true, text: $text}')
+            
+            curl -s -X POST "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
+              -H "Content-Type: application/json" \
+              -d "$PAYLOAD" | jq -r '.ok'
+          done
+          echo "::endgroup::"
