@@ -1,5 +1,5 @@
 # 📱 OnePlusOSS Kernel Tracker
-> **Last Update:** Mon Apr 27 06:27:21 UTC 2026 (UTC)
+> **Last Update:** Mon Apr 27 10:15:00 UTC 2026 (UTC)
 Daily automated report for OnePlus Kernel branches.
 ### 📓 Kernel Manifests Report
 <details><summary><b>kernel_manifest</b></summary>
@@ -182,6 +182,19 @@ Daily automated report for OnePlus Kernel branches.
 
 
 ### 🛠 Kernel Trees Report
+<details><summary><b>android_kernel_oneplus_sm8850</b></summary>
+
+#### Branch: `oneplus/sm8850_b_16.0.0_oneplus_15` 🔄 Updated
+* **Kernel Version:** `6.11.0`
+* **Commit SHA:** `129df10`
+* **Message:** Synchronize code for OnePlus PLK110_16.0.5.701(CN01)
+---
+#### Branch: `oneplus/sm8850_b_16.0_oneplus_15t` ✅
+* **Kernel Version:** `6.11.0`
+* **Commit SHA:** `31de128`
+* **Message:** Synchronize code for OnePlus PLZ110_16.0.4.603(CN01)
+---
+</details>
 <details><summary><b>android_kernel_oneplus_sm6375</b></summary>
 
 #### Branch: `oneplus/sm6375_v_15.0.0_nord_ce4_lite_5g` ✅
@@ -855,19 +868,6 @@ Daily automated report for OnePlus Kernel branches.
 #### Branch: `oneplus/sm8850_b_16.0_oneplus_15t` ✅
 * **Kernel Version:** `6.12.38`
 * **Commit SHA:** `f8f8b74`
-* **Message:** Synchronize code for OnePlus PLZ110_16.0.4.603(CN01)
----
-</details>
-<details><summary><b>android_kernel_oneplus_sm8850</b></summary>
-
-#### Branch: `oneplus/sm8850_b_16.0.0_oneplus_15` ✅
-* **Kernel Version:** `6.11.0`
-* **Commit SHA:** `6504e3d`
-* **Message:** Synchronize code for OnePlus CPH2745_16.0.3.501(EX01) CPH2747_16.0.3.501(EX01) PLK110_16.0.3.503(CN01)
----
-#### Branch: `oneplus/sm8850_b_16.0_oneplus_15t` ✅
-* **Kernel Version:** `6.11.0`
-* **Commit SHA:** `31de128`
 * **Message:** Synchronize code for OnePlus PLZ110_16.0.4.603(CN01)
 ---
 </details>
